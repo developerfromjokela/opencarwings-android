@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -17,6 +18,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
@@ -28,6 +30,9 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavOptions
@@ -70,6 +75,8 @@ class MainFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var topMargin = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel =  ViewModelProvider.create(
@@ -89,8 +96,14 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val menuHost: MenuHost = requireActivity()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setOnApplyWindowInsetsListener(requireActivity().findViewById<View>(android.R.id.content)) { _, insets ->
+                val safeInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                topMargin = safeInsets.top
+                insets
+            }
+        }
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.main_menu, menu)
@@ -364,8 +377,9 @@ class MainFragment : Fragment() {
     }
 
     private fun showTopSnackAlert(title: String, message: String? = null) {
+        val rootVw: View = requireActivity().findViewById(android.R.id.content)
         val snackbar = Snackbar.make(
-            requireActivity().findViewById(android.R.id.content),
+            rootVw,
             "", // Empty message since we'll use a custom view
             Snackbar.LENGTH_LONG
         )
@@ -399,11 +413,11 @@ class MainFragment : Fragment() {
         snackbarView.addView(customView)
 
         // Position Snackbar at the top
+
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
         params.gravity = android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
-        params.topMargin = 64 // Margin from the top
+        params.topMargin = topMargin+64
         snackbarView.layoutParams = params
-
         // Show the Snackbar
         snackbar.show()
     }
