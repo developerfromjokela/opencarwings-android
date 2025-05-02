@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "303853583931",
+    "project_id": "myovms-7afbb",
+    "storage_bucket": "myovms-7afbb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303853583931:android:fd2f58313f6fdc9d3ae61e",
+        "android_client_info": {
+          "package_name": "com.developerfromjokela.opencarwings"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvi3_nOuw8CPBbKf_q-cscGTk5rG16wzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303853583931:android:ad0df174599bb2343ae61e",
+        "android_client_info": {
+          "package_name": "com.openvehicles.OVMS"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvi3_nOuw8CPBbKf_q-cscGTk5rG16wzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

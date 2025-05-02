@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.login.LoginFragment"
+        android:label="@string/fragment_login"
+        tools:layout="@layout/fragment_login" />
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.main.MainFragment"
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment_to_EVInfoFragment"
+            app:destination="@id/EVInfoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_TCUSettingsFragment"
+            app:destination="@id/TCUSettingsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/action_mainFragment_to_locationFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:destination="@id/locationFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_notificationsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:destination="@id/notificationsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/EVInfoFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoFragment"
+        android:label="@string/ev_info"
+        tools:layout="@layout/fragment_ev_info_list">
+        <argument
+            android:name="evinfo"
+            app:argType="string"
+            android:defaultValue="{}" />
+    </fragment>
+    <fragment
+        android:id="@+id/TCUSettingsFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.main.tcusettings.TCUSettingsFragment"
+        android:label="@string/tcu_settings"
+        tools:layout="@layout/fragment_tcu_settings_list">
+        <argument
+            android:name="tcuconfig"
+            app:argType="string"
+            android:defaultValue="{}" />
+        <argument
+            android:name="tcuconfig_r"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.main.location.LocationFragment"
+        android:label="@string/location"
+        tools:layout="@layout/fragment_location" />
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsFragment"
+        android:label="@string/notifications" />
+</navigation>

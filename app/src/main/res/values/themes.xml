@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.OpenCARWINGS" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <!-- Custom style for centered TextInputLayout with dropdown -->
+    <style name="CenteredTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <!-- Custom style for centered MaterialAutoCompleteTextView -->
+    <style name="CenteredAutoCompleteTextView">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+</resources>
