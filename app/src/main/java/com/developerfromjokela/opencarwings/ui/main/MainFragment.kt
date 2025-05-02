@@ -420,6 +420,7 @@ class MainFragment : Fragment() {
         super.onResume()
         serverReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
+                Log.e("MF", "Received broadcast!!")
                 if (intent.hasExtra("type")) {
                     try {
                         when (intent.getStringExtra("type")) {
@@ -475,7 +476,7 @@ class MainFragment : Fragment() {
                 it,
                 serverReceiver,
                 IntentFilter(OpenCARWINGS.WS_BROADCAST),
-                ContextCompat.RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_EXPORTED
             )
         }
     }

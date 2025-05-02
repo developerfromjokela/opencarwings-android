@@ -2,6 +2,7 @@ package com.developerfromjokela.opencarwings
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClient.Companion.moshi
@@ -56,6 +57,7 @@ class OpenCARWINGS: Application() {
                         broadcastIntent.putExtra("car", moshi.adapter(Car::class.java).toJson(event.car))
                     }
                 }
+                Log.e("OpenCARWINGS", "Sending broadcast")
                 sendBroadcast(broadcastIntent)
             }
         )

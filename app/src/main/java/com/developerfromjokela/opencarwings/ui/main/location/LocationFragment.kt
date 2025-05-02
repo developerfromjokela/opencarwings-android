@@ -123,7 +123,7 @@ class LocationFragment : Fragment() {
                 it,
                 serverReceiver,
                 IntentFilter(OpenCARWINGS.WS_BROADCAST),
-                ContextCompat.RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_EXPORTED
             )
         }
     }
