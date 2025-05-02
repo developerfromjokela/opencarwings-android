@@ -239,8 +239,11 @@ class MainFragment : Fragment() {
                 layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_hd)
             }
 
-            if (state.isPluggedIn || state.isCharging || state.isQuickCharging) {
+            if (state.isPluggedIn || state.isQuickCharging) {
                 layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_cp)
+                if (!state.isCharging && !state.isQuickCharging) {
+                    layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_cw)
+                }
             }
 
             if (state.isCharging) {
