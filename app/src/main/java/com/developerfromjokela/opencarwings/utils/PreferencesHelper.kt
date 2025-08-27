@@ -13,6 +13,7 @@ class PreferencesHelper(context: Context) {
         private const val KEY_USERNAME = "username"
         private const val KEY_SERVER = "server"
         private const val KEY_ACTIVE_CAR_VIN = "active_car_vin"
+        private const val KEY_WHATS_NEW = ""
     }
 
     var accessToken: String?
@@ -34,6 +35,10 @@ class PreferencesHelper(context: Context) {
     var activeCarVin: String?
         get() = prefs.getString(KEY_ACTIVE_CAR_VIN, null)
         set(value) = prefs.edit().putString(KEY_ACTIVE_CAR_VIN, value).apply()
+
+    var whatsNew: String?
+        get() = prefs.getString(KEY_WHATS_NEW, "")
+        set(value) = prefs.edit().putString(KEY_WHATS_NEW, value).apply()
 
     fun clearAll() {
         prefs.edit().clear().apply()

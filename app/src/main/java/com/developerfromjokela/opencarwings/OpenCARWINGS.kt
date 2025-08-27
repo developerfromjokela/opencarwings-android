@@ -7,6 +7,7 @@ import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClient.Companion.moshi
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
+import com.google.android.gms.maps.MapsInitializer
 import com.google.android.material.color.DynamicColors
 import com.google.firebase.FirebaseApp
 import org.openapitools.client.infrastructure.ApiClient
@@ -23,6 +24,7 @@ class OpenCARWINGS: Application() {
 
     override fun onCreate() {
         FirebaseApp.initializeApp(this)
+        MapsInitializer.initialize(this)
         this.preferencesHelper = PreferencesHelper(this)
         ApiClient.apiKeyPrefix["Authorization"] = "Bearer"
         WSClient.getInstance().configure(
@@ -57,7 +59,6 @@ class OpenCARWINGS: Application() {
                         broadcastIntent.putExtra("car", moshi.adapter(Car::class.java).toJson(event.car))
                     }
                 }
-                Log.e("OpenCARWINGS", "Sending broadcast")
                 sendBroadcast(broadcastIntent)
             }
         )

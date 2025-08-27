@@ -15,7 +15,6 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.color.DynamicColors
 import android.Manifest
-import com.google.firebase.FirebaseApp
 
 class MainActivity : AppCompatActivity() {
 

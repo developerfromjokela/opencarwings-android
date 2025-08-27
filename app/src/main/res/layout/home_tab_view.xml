@@ -6,9 +6,9 @@
     style="@style/Widget.Material3.CardView.Elevated"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:cardElevation="0dp"
     android:layout_margin="6dp"
-    android:minHeight="65dp"
-    app:cardBackgroundColor="?attr/colorSecondaryContainer">
+    android:minHeight="65dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

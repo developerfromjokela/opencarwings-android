@@ -1,7 +1,10 @@
 
 package com.developerfromjokela.opencarwings.ui.main
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -74,7 +77,8 @@ data class CarUiState(
     val genericError: Int? = null,
     val error: String? = null,
     val fatalError: Boolean = false,
-    val forceLogout: Boolean = false
+    val forceLogout: Boolean = false,
+    val sendSmsToNumber: String? = null
 )
 
 // Data class for RecyclerView menu items
@@ -120,6 +124,10 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         fetchInitialData()
     }
 
+    fun smsSendingComplete() {
+        _uiState.value = _uiState.value?.copy(sendSmsToNumber = null)
+    }
+
     fun onRefresh() {
         viewModelScope.launch {
             _uiState.value = _uiState.value?.copy(isRefreshing = true)
@@ -150,8 +158,24 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         fetchInitialData()
     }
 
+    private fun checkOnDeviceSMS() {
+        val onPhone = (_uiState.value?.car?.smsConfig as? Map<*, *>)
+        if (onPhone?.getOrDefault("provider", "") == "ondevice") {
+            val phoneNumber = onPhone.getOrDefault("phone", null) as? String?
+            _uiState.value = _uiState.value?.copy(sendSmsToNumber = phoneNumber)
+        }
+    }
+
+    fun resetReconnectionAttempts() {
+        if (WSClient.getInstance().isReconnecting()) {
+            WSClient.getInstance().connect()
+        }
+    }
+
     private fun sendTCUCommand(command: ApiCommandCreateRequest) {
         viewModelScope.launch {
+            checkOnDeviceSMS()
+
             try {
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 val car = withContext(Dispatchers.IO) {
@@ -159,7 +183,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 }
                 updateUiState(car.car)
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isAcActionInProgress = false,
                         isChgActionInProgress = false,
@@ -214,7 +238,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 notificationsState.value = notifData
                 updateUiState(car)
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
@@ -264,7 +288,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                     ))
                 }
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
@@ -387,7 +411,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 WSClient.getInstance().configure(preferencesHelper.server?.replace("https://", "wss://")+"/ws/notif/", preferencesHelper.accessToken ?: "")
                 WSClient.getInstance().connect()
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
@@ -434,7 +458,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 retryFunc()
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,

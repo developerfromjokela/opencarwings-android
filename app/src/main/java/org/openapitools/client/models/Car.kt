@@ -67,6 +67,9 @@ data class Car (
     @Json(name = "location")
     val location: LocationInfo,
 
+    @Json(name = "send_to_car_location")
+    var sendtoCarLocation: SendToCarLocation? = null,
+
     @Json(name = "ev_info")
     val evInfo: EVInfo,
 

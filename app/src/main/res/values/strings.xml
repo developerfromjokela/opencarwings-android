@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">OpenCARWINGS</string>
+    <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
+    <string name="whats_new_content">
+        <![CDATA[<ul>
+            <li>When you select SMS from your device option as SMS provider, the app will now launch your SMS messaging app to send the initial SMS message</li>
+            <li>Send location to car available in Location menu</li>
+            <li><b>You can also share a location to the car from Google Maps or Apple Maps by sharing it to this application. Just choose OpenCARWINGS when you\'re sharing the location.</b></li>
+        </ul>]]>
+    </string>
     <string name="fragment_login">Sign In</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
@@ -82,4 +90,11 @@
     <string name="settings">Settings</string>
     <string name="sign_out">Sign out</string>
     <string name="settings_username">Username: %s</string>
+    <string name="search">Search</string>
+    <string name="sharing_location_car">Sending location to car</string>
+    <string name="share_complete">Location shared to the car</string>
+    <string name="share_complete_msg">You can set the location as destination inside the navigation unit by going to Destination and then Google Send to Car.</string>
+    <string name="link_send_fail">Could not share this location</string>
+    <string name="location_default_name">Location from phone</string>
+    <string name="whats_new">What\'s new?</string>
 </resources>

@@ -34,8 +34,6 @@ class NotificationsFragment : Fragment() {
             notifications.addAll(
                 it.getString(ARG_NOTIFICATIONS)
                     ?.let { it1 -> WSClient.moshi.adapter(NotificationsListWrapper::class.java).fromJson(it1) }?.list ?: emptyList())
-            Log.e("NF", "COUNT"+notifications.count())
-            Log.e("NF", notifications[0].typeDisplay)
         }
     }
 

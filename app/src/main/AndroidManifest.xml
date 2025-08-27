@@ -16,11 +16,9 @@
         android:theme="@style/Theme.OpenCARWINGS"
         tools:targetApi="31">
 
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCe_NhapTyVZsEVMj6VLDWkLLLuNIlSqp0" />
-
+            android:value="" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notif_icon" />
@@ -36,6 +34,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:exported="true"
+            android:name=".sendtocar.SendToCarActivity"
+            android:theme="@style/Theme.OpenCARWINGS.SendToCar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

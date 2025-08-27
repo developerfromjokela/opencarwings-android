@@ -195,7 +195,7 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * 
      * @param vin 
      * @param `data` 
-     * @return void
+     * @return Car
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
@@ -203,11 +203,11 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * @throws ServerException If the API returns a server error response
      */
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun apiCarPartialUpdate(vin: kotlin.String, `data`: Car) : Unit {
+    fun apiCarPartialUpdate(vin: kotlin.String, `data`: Car) : Car {
         val localVarResponse = apiCarPartialUpdateWithHttpInfo(vin = vin, `data` = `data`)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> Unit
+            ResponseType.Success -> (localVarResponse as Success<*>).data as Car
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -232,10 +232,10 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiCarPartialUpdateWithHttpInfo(vin: kotlin.String, `data`: Car) : ApiResponse<Unit?> {
+    fun apiCarPartialUpdateWithHttpInfo(vin: kotlin.String, `data`: Car) : ApiResponse<Car?> {
         val localVariableConfig = apiCarPartialUpdateRequestConfig(vin = vin, `data` = `data`)
 
-        return request<Car, Unit>(
+        return request<Car, Car>(
             localVariableConfig
         )
     }

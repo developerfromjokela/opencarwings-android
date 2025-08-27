@@ -7,6 +7,15 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
+    <style name="Theme.OpenCARWINGS.SendToCar" parent="Theme.OpenCARWINGS">
+        <item name="android:windowBackground">@color/sharing_bg</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
     <!-- Custom style for centered TextInputLayout with dropdown -->
     <style name="CenteredTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu">
         <item name="android:layout_gravity">center</item>

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OpenCARWINGS</string>
+    <string name="whats_new_content">
+        <![CDATA[
+        <ul>
+            <li>Kun valitset nettiportaalista SMS-palveluksi "SMS-viestin lähetys laitteestasi" vaihtoehdoksi ja syötät puhelinnumeron, sovellus automaattisesti avaa tekstiviestisovelluksen ja pyytää lähettämään tekstiviestin.</li>
+            <li>Sijainnin lähetys autoon on saatavilla "Sijainti"-valikon alla.</li>
+            <li>Voit myös jakaa sijainnin suoraan karttasovelluksesta kuten Google Maps tai Apple Maps, jaa sijainti karttasovelluksesta OpenCARWINGSille</li>
+        </ul>
+        ]]>
+    </string>
     <string name="fragment_login">Kirjaudu sisään</string>
     <string name="prompt_username">Käyttäjänimi</string>
     <string name="prompt_password">Salasana</string>
@@ -81,4 +90,11 @@
     <string name="settings">Asetukset</string>
     <string name="sign_out">Kirjaudu ulos</string>
     <string name="settings_username">Käyttäjänimi: %s</string>
+    <string name="search">Hae</string>
+    <string name="sharing_location_car">Lähetetään sijaintia autoon</string>
+    <string name="share_complete">Sijainti jaettu autoon</string>
+    <string name="share_complete_msg">Voit asettaa lähetetyn sijainnin määränpääksi auton navigoinnissa menemällä MENU-valikkoon -> Määränpää/Destination -> Google Send to car.</string>
+    <string name="link_send_fail">Sijaintia ei voitu jakaa</string>
+    <string name="location_default_name">Sijainti puhelimesta</string>
+    <string name="whats_new">Mitä uutta?</string>
 </resources>

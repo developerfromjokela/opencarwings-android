@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -86,6 +87,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-messaging:24.1.1")
+    implementation("com.google.android.libraries.places:places:4.4.1")
+    implementation("androidx.activity:activity:1.10.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")

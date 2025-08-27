@@ -2,6 +2,7 @@ package com.developerfromjokela.opencarwings.ui.main
 
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
@@ -9,8 +10,10 @@ import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -27,6 +30,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -63,6 +67,8 @@ import org.openapitools.client.models.CarSerializerList
 import org.openapitools.client.models.EVInfo
 import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.TCUConfiguration
+import androidx.core.net.toUri
+import com.developerfromjokela.opencarwings.BuildConfig
 
 class MainFragment : Fragment() {
 
@@ -129,6 +135,19 @@ class MainFragment : Fragment() {
                 return true
             }
         }, viewLifecycleOwner)
+
+        val preferenceHelper = PreferencesHelper(requireContext())
+        if (preferenceHelper.whatsNew != BuildConfig.VERSION_CODE.toString()) {
+            preferenceHelper.whatsNew = BuildConfig.VERSION_CODE.toString()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.whats_new)
+                .setMessage(Html.fromHtml(getString(R.string.whats_new_content)))
+                .setPositiveButton(R.string.close, object : DialogInterface.OnClickListener {
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        p0?.dismiss()
+                    }
+                }).show()
+        }
 
         // Setup RecyclerView
         binding.menuItems.layoutManager = LinearLayoutManager(context)
@@ -201,6 +220,15 @@ class MainFragment : Fragment() {
                 Navigation.findNavController(view).navigate(R.id.loginFragment, null, navOptions)
                 return@observe
             }
+
+            if (state.sendSmsToNumber != null) {
+                val uri = ("smsto:" + state.sendSmsToNumber).toUri()
+                val it = Intent(Intent.ACTION_SENDTO, uri)
+                it.putExtra("sms_body", getString(R.string.telematics_sms));
+                startActivity(it)
+                viewModel.smsSendingComplete()
+            }
+
             val spinner2 = (requireActivity() as MainActivity).findViewById<Spinner>(R.id.spinner_toolbar)
             if (spinner2 != null) {
                 val mArrayAdapter = NavAdapter(requireContext(), state.cars.map { CarPickerItem(it) })
@@ -232,26 +260,38 @@ class MainFragment : Fragment() {
             var layers = emptyList<Drawable>()
 
             state.carImageResId?.let {
-                layers += ContextCompat.getDrawable(requireContext(), it)
+                ContextCompat.getDrawable(requireContext(), it)?.let {
+                    layers += it
+                }
             }
 
             if (state.isRunning) {
-                layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_hd)
+                ContextCompat.getDrawable(requireContext(), R.drawable.l_hd)?.let {
+                    layers += it
+                }
             }
 
             if (state.isPluggedIn || state.isQuickCharging) {
-                layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_cp)
+                ContextCompat.getDrawable(requireContext(), R.drawable.l_cp)?.let {
+                    layers += it
+                }
                 if (!state.isCharging && !state.isQuickCharging) {
-                    layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_cw)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_cw)?.let {
+                        layers += it
+                    }
                 }
             }
 
             if (state.isCharging) {
-                layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_chg)
+                ContextCompat.getDrawable(requireContext(), R.drawable.l_chg)?.let {
+                    layers += it
+                }
             }
 
             if (state.isQuickCharging) {
-                layers += ContextCompat.getDrawable(requireContext(), R.drawable.l_q_chg)
+                ContextCompat.getDrawable(requireContext(), R.drawable.l_q_chg)?.let {
+                    layers += it
+                }
             }
 
             if (state.carGear != 0) {
@@ -416,11 +456,11 @@ class MainFragment : Fragment() {
         snackbarView.addView(customView)
 
         // Position Snackbar at the top
-
         val params = snackbarView.layoutParams as FrameLayout.LayoutParams
         params.gravity = android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
         params.topMargin = topMargin+64
         snackbarView.layoutParams = params
+
         // Show the Snackbar
         snackbar.show()
     }
@@ -437,7 +477,6 @@ class MainFragment : Fragment() {
         super.onResume()
         serverReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                Log.e("MF", "Received broadcast!!")
                 if (intent.hasExtra("type")) {
                     try {
                         when (intent.getStringExtra("type")) {
@@ -496,6 +535,8 @@ class MainFragment : Fragment() {
                 ContextCompat.RECEIVER_EXPORTED
             )
         }
+
+        viewModel.resetReconnectionAttempts()
     }
 
     override fun onPause() {
@@ -581,7 +622,7 @@ class MainFragment : Fragment() {
 
     private class NavAdapter(
         context: Context,
-        var objects: List<CarPickerItem> = emptyList()
+        objects: List<CarPickerItem> = emptyList()
     ) : ArrayAdapter<CarPickerItem?>(
         context,
         android.R.layout.simple_spinner_item,

@@ -180,17 +180,14 @@ class WSClient private constructor() {
     // Create WebSocket listener
     private fun createWebSocketListener() = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            Log.d(TAG, "WebSocket connected")
             this@WSClient.webSocket = webSocket
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.d(TAG, "Received text: $text")
             parsePayload(text)
         }
 
         override fun onMessage(webSocket: WebSocket, bytes: okio.ByteString) {
-            Log.d(TAG, "Received binary data: ${bytes.size}")
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
