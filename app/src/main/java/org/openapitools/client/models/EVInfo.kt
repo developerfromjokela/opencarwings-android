@@ -47,6 +47,9 @@ import com.squareup.moshi.JsonClass
  * @param obc6kw 
  * @param param21 
  * @param forceSocDisplay 
+ * @param obc6kwAvail 
+ * @param battHeaterAvail 
+ * @param battHeaterStatus 
  * @param lastUpdated 
  */
 
@@ -127,6 +130,15 @@ data class EVInfo (
 
     @Json(name = "force_soc_display")
     val forceSocDisplay: kotlin.Boolean? = null,
+
+    @Json(name = "obc_6kw_avail")
+    val obc6kwAvail: kotlin.Boolean? = null,
+
+    @Json(name = "batt_heater_avail")
+    val battHeaterAvail: kotlin.Boolean? = null,
+
+    @Json(name = "batt_heater_status")
+    val battHeaterStatus: kotlin.Boolean? = null,
 
     @Json(name = "last_updated")
     val lastUpdated: java.time.OffsetDateTime? = null

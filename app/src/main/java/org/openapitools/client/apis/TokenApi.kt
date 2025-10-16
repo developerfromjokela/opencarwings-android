@@ -47,7 +47,7 @@ class TokenApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory =
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(ApiClient.baseUrlKey, "http://opencarwings.viaaq.eu")
+            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://opencarwings.viaaq.eu")
         }
     }
 
@@ -168,10 +168,10 @@ class TokenApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory =
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiTokenRefreshCreateWithHttpInfo(`data`: TokenRefresh) : ApiResponse<TokenRefresh?> {
+    fun apiTokenRefreshCreateWithHttpInfo(`data`: TokenRefresh) : ApiResponse<TokenRefreshResponse?> {
         val localVariableConfig = apiTokenRefreshCreateRequestConfig(`data` = `data`)
 
-        return request<TokenRefresh, TokenRefresh>(
+        return request<TokenRefresh, TokenRefreshResponse>(
             localVariableConfig
         )
     }

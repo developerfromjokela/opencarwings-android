@@ -22,8 +22,10 @@ import okhttp3.HttpUrl
 import org.openapitools.client.models.ApiCommandCreateRequest
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.CarSerializerList
+import org.openapitools.client.models.CarUpdating
 import org.openapitools.client.models.CommandError
 import org.openapitools.client.models.CommandResponse
+import org.openapitools.client.models.CommandTimerSetting
 
 import com.squareup.moshi.Json
 
@@ -45,7 +47,7 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(ApiClient.baseUrlKey, "http://opencarwings.viaaq.eu")
+            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://opencarwings.viaaq.eu")
         }
     }
 
@@ -202,8 +204,9 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * @throws ClientException If the API returns a client error response
      * @throws ServerException If the API returns a server error response
      */
+    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun apiCarPartialUpdate(vin: kotlin.String, `data`: Car) : Car {
+    fun apiCarPartialUpdate(vin: kotlin.String, `data`: CarUpdating) : Car {
         val localVarResponse = apiCarPartialUpdateWithHttpInfo(vin = vin, `data` = `data`)
 
         return when (localVarResponse.responseType) {
@@ -227,15 +230,16 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * 
      * @param vin 
      * @param `data` 
-     * @return ApiResponse<Unit?>
+     * @return ApiResponse<Car?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
+    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiCarPartialUpdateWithHttpInfo(vin: kotlin.String, `data`: Car) : ApiResponse<Car?> {
+    fun apiCarPartialUpdateWithHttpInfo(vin: kotlin.String, `data`: CarUpdating) : ApiResponse<Car?> {
         val localVariableConfig = apiCarPartialUpdateRequestConfig(vin = vin, `data` = `data`)
 
-        return request<Car, Car>(
+        return request<CarUpdating, Car>(
             localVariableConfig
         )
     }
@@ -247,12 +251,13 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * @param `data` 
      * @return RequestConfig
      */
-    fun apiCarPartialUpdateRequestConfig(vin: kotlin.String, `data`: Car) : RequestConfig<Car> {
+    fun apiCarPartialUpdateRequestConfig(vin: kotlin.String, `data`: CarUpdating) : RequestConfig<CarUpdating> {
         val localVariableBody = `data`
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
         localVariableHeaders["Content-Type"] = "application/json"
-        
+        localVariableHeaders["Accept"] = "application/json"
+
         return RequestConfig(
             method = RequestMethod.PATCH,
             path = "/api/car/{vin}/".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())),
@@ -337,6 +342,465 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
     }
 
     /**
+     * POST /api/car/{vin}/timers/
+     * 
+     * 
+     * @param vin 
+     * @param `data` 
+     * @return CommandTimerSetting
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersCreate(vin: kotlin.String, `data`: CommandTimerSetting) : CommandTimerSetting {
+        val localVarResponse = apiCarTimersCreateWithHttpInfo(vin = vin, `data` = `data`)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as CommandTimerSetting
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * POST /api/car/{vin}/timers/
+     * 
+     * 
+     * @param vin 
+     * @param `data` 
+     * @return ApiResponse<CommandTimerSetting?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersCreateWithHttpInfo(vin: kotlin.String, `data`: CommandTimerSetting) : ApiResponse<CommandTimerSetting?> {
+        val localVariableConfig = apiCarTimersCreateRequestConfig(vin = vin, `data` = `data`)
+
+        return request<CommandTimerSetting, CommandTimerSetting>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersCreate
+     *
+     * @param vin 
+     * @param `data` 
+     * @return RequestConfig
+     */
+    fun apiCarTimersCreateRequestConfig(vin: kotlin.String, `data`: CommandTimerSetting) : RequestConfig<CommandTimerSetting> {
+        val localVariableBody = `data`
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.POST,
+            path = "/api/car/{vin}/timers/".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * DELETE /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @return void
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersDelete(vin: kotlin.String, id: kotlin.String) : Unit {
+        val localVarResponse = apiCarTimersDeleteWithHttpInfo(vin = vin, id = id)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> Unit
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * DELETE /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @return ApiResponse<Unit?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersDeleteWithHttpInfo(vin: kotlin.String, id: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = apiCarTimersDeleteRequestConfig(vin = vin, id = id)
+
+        return request<Unit, Unit>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersDelete
+     *
+     * @param vin 
+     * @param id 
+     * @return RequestConfig
+     */
+    fun apiCarTimersDeleteRequestConfig(vin: kotlin.String, id: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        
+        return RequestConfig(
+            method = RequestMethod.DELETE,
+            path = "/api/car/{vin}/timers/{id}".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())).replace("{"+"id"+"}", encodeURIComponent(id.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * GET /api/car/{vin}/timers/
+     * 
+     * 
+     * @param vin 
+     * @return kotlin.collections.List<CommandTimerSetting>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersList(vin: kotlin.String) : kotlin.collections.List<CommandTimerSetting> {
+        val localVarResponse = apiCarTimersListWithHttpInfo(vin = vin)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.List<CommandTimerSetting>
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * GET /api/car/{vin}/timers/
+     * 
+     * 
+     * @param vin 
+     * @return ApiResponse<kotlin.collections.List<CommandTimerSetting>?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersListWithHttpInfo(vin: kotlin.String) : ApiResponse<kotlin.collections.List<CommandTimerSetting>?> {
+        val localVariableConfig = apiCarTimersListRequestConfig(vin = vin)
+
+        return request<Unit, kotlin.collections.List<CommandTimerSetting>>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersList
+     *
+     * @param vin 
+     * @return RequestConfig
+     */
+    fun apiCarTimersListRequestConfig(vin: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/car/{vin}/timers/".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * PATCH /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return CommandTimerSetting
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersPartialUpdate(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : CommandTimerSetting {
+        val localVarResponse = apiCarTimersPartialUpdateWithHttpInfo(vin = vin, id = id, `data` = `data`)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as CommandTimerSetting
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * PATCH /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return ApiResponse<CommandTimerSetting?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersPartialUpdateWithHttpInfo(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : ApiResponse<CommandTimerSetting?> {
+        val localVariableConfig = apiCarTimersPartialUpdateRequestConfig(vin = vin, id = id, `data` = `data`)
+
+        return request<CommandTimerSetting, CommandTimerSetting>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersPartialUpdate
+     *
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return RequestConfig
+     */
+    fun apiCarTimersPartialUpdateRequestConfig(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : RequestConfig<CommandTimerSetting> {
+        val localVariableBody = `data`
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.PATCH,
+            path = "/api/car/{vin}/timers/{id}".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())).replace("{"+"id"+"}", encodeURIComponent(id.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * GET /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @return CommandTimerSetting
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersRead(vin: kotlin.String, id: kotlin.String) : CommandTimerSetting {
+        val localVarResponse = apiCarTimersReadWithHttpInfo(vin = vin, id = id)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as CommandTimerSetting
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * GET /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @return ApiResponse<CommandTimerSetting?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersReadWithHttpInfo(vin: kotlin.String, id: kotlin.String) : ApiResponse<CommandTimerSetting?> {
+        val localVariableConfig = apiCarTimersReadRequestConfig(vin = vin, id = id)
+
+        return request<Unit, CommandTimerSetting>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersRead
+     *
+     * @param vin 
+     * @param id 
+     * @return RequestConfig
+     */
+    fun apiCarTimersReadRequestConfig(vin: kotlin.String, id: kotlin.String) : RequestConfig<Unit> {
+        val localVariableBody = null
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.GET,
+            path = "/api/car/{vin}/timers/{id}".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())).replace("{"+"id"+"}", encodeURIComponent(id.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
+     * PUT /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return CommandTimerSetting
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     * @throws UnsupportedOperationException If the API returns an informational or redirection response
+     * @throws ClientException If the API returns a client error response
+     * @throws ServerException If the API returns a server error response
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
+    fun apiCarTimersUpdate(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : CommandTimerSetting {
+        val localVarResponse = apiCarTimersUpdateWithHttpInfo(vin = vin, id = id, `data` = `data`)
+
+        return when (localVarResponse.responseType) {
+            ResponseType.Success -> (localVarResponse as Success<*>).data as CommandTimerSetting
+            ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
+            ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
+            ResponseType.ClientError -> {
+                val localVarError = localVarResponse as ClientError<*>
+                throw ClientException("Client error : ${localVarError.statusCode} ${localVarError.message.orEmpty()}", localVarError.statusCode, localVarResponse)
+            }
+            ResponseType.ServerError -> {
+                val localVarError = localVarResponse as ServerError<*>
+                throw ServerException("Server error : ${localVarError.statusCode} ${localVarError.message.orEmpty()} ${localVarError.body}", localVarError.statusCode, localVarResponse)
+            }
+        }
+    }
+
+    /**
+     * PUT /api/car/{vin}/timers/{id}
+     * 
+     * 
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return ApiResponse<CommandTimerSetting?>
+     * @throws IllegalStateException If the request is not correctly configured
+     * @throws IOException Rethrows the OkHttp execute method exception
+     */
+    @Suppress("UNCHECKED_CAST")
+    @Throws(IllegalStateException::class, IOException::class)
+    fun apiCarTimersUpdateWithHttpInfo(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : ApiResponse<CommandTimerSetting?> {
+        val localVariableConfig = apiCarTimersUpdateRequestConfig(vin = vin, id = id, `data` = `data`)
+
+        return request<CommandTimerSetting, CommandTimerSetting>(
+            localVariableConfig
+        )
+    }
+
+    /**
+     * To obtain the request config of the operation apiCarTimersUpdate
+     *
+     * @param vin 
+     * @param id 
+     * @param `data` 
+     * @return RequestConfig
+     */
+    fun apiCarTimersUpdateRequestConfig(vin: kotlin.String, id: kotlin.String, `data`: CommandTimerSetting) : RequestConfig<CommandTimerSetting> {
+        val localVariableBody = `data`
+        val localVariableQuery: MultiValueMap = mutableMapOf()
+        val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
+        localVariableHeaders["Content-Type"] = "application/json"
+        localVariableHeaders["Accept"] = "application/json"
+
+        return RequestConfig(
+            method = RequestMethod.PUT,
+            path = "/api/car/{vin}/timers/{id}".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())).replace("{"+"id"+"}", encodeURIComponent(id.toString())),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+            body = localVariableBody
+        )
+    }
+
+    /**
      * PUT /api/car/{vin}/
      * 
      * 
@@ -351,7 +815,7 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun apiCarUpdate(vin: kotlin.String, `data`: Car) : Car {
+    fun apiCarUpdate(vin: kotlin.String, `data`: CarUpdating) : Car {
         val localVarResponse = apiCarUpdateWithHttpInfo(vin = vin, `data` = `data`)
 
         return when (localVarResponse.responseType) {
@@ -381,10 +845,10 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiCarUpdateWithHttpInfo(vin: kotlin.String, `data`: Car) : ApiResponse<Car?> {
+    fun apiCarUpdateWithHttpInfo(vin: kotlin.String, `data`: CarUpdating) : ApiResponse<Car?> {
         val localVariableConfig = apiCarUpdateRequestConfig(vin = vin, `data` = `data`)
 
-        return request<Car, Car>(
+        return request<CarUpdating, Car>(
             localVariableConfig
         )
     }
@@ -396,7 +860,7 @@ class CarsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = 
      * @param `data` 
      * @return RequestConfig
      */
-    fun apiCarUpdateRequestConfig(vin: kotlin.String, `data`: Car) : RequestConfig<Car> {
+    fun apiCarUpdateRequestConfig(vin: kotlin.String, `data`: CarUpdating) : RequestConfig<CarUpdating> {
         val localVariableBody = `data`
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()

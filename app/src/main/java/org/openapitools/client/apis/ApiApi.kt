@@ -19,7 +19,6 @@ import java.io.IOException
 import okhttp3.Call
 import okhttp3.HttpUrl
 
-import org.openapitools.client.models.AlertHistory
 
 import com.squareup.moshi.Json
 
@@ -37,7 +36,7 @@ import org.openapitools.client.infrastructure.ResponseType
 import org.openapitools.client.infrastructure.Success
 import org.openapitools.client.infrastructure.toMultiValue
 
-class AlertsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
+class ApiApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
@@ -46,24 +45,23 @@ class AlertsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory 
     }
 
     /**
-     * GET /api/alerts/{vin}/
+     * GET /api/probe/location/{vin}/
      * 
-     * Retrieve a list of alerts for a vehicle
+     * 
      * @param vin 
-     * @return kotlin.collections.List<AlertHistory>
+     * @return void
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      * @throws UnsupportedOperationException If the API returns an informational or redirection response
      * @throws ClientException If the API returns a client error response
      * @throws ServerException If the API returns a server error response
      */
-    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun apiAlertsRead(vin: kotlin.String) : kotlin.collections.List<AlertHistory> {
-        val localVarResponse = apiAlertsReadWithHttpInfo(vin = vin)
+    fun apiProbeLocationRead(vin: kotlin.String) : Unit {
+        val localVarResponse = apiProbeLocationReadWithHttpInfo(vin = vin)
 
         return when (localVarResponse.responseType) {
-            ResponseType.Success -> (localVarResponse as Success<*>).data as kotlin.collections.List<AlertHistory>
+            ResponseType.Success -> Unit
             ResponseType.Informational -> throw UnsupportedOperationException("Client does not support Informational responses.")
             ResponseType.Redirection -> throw UnsupportedOperationException("Client does not support Redirection responses.")
             ResponseType.ClientError -> {
@@ -78,39 +76,37 @@ class AlertsApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory 
     }
 
     /**
-     * GET /api/alerts/{vin}/
+     * GET /api/probe/location/{vin}/
      * 
-     * Retrieve a list of alerts for a vehicle
+     * 
      * @param vin 
-     * @return ApiResponse<kotlin.collections.List<AlertHistory>?>
+     * @return ApiResponse<Unit?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
-    @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiAlertsReadWithHttpInfo(vin: kotlin.String) : ApiResponse<kotlin.collections.List<AlertHistory>?> {
-        val localVariableConfig = apiAlertsReadRequestConfig(vin = vin)
+    fun apiProbeLocationReadWithHttpInfo(vin: kotlin.String) : ApiResponse<Unit?> {
+        val localVariableConfig = apiProbeLocationReadRequestConfig(vin = vin)
 
-        return request<Unit, kotlin.collections.List<AlertHistory>>(
+        return request<Unit, Unit>(
             localVariableConfig
         )
     }
 
     /**
-     * To obtain the request config of the operation apiAlertsRead
+     * To obtain the request config of the operation apiProbeLocationRead
      *
      * @param vin 
      * @return RequestConfig
      */
-    fun apiAlertsReadRequestConfig(vin: kotlin.String) : RequestConfig<Unit> {
+    fun apiProbeLocationReadRequestConfig(vin: kotlin.String) : RequestConfig<Unit> {
         val localVariableBody = null
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
-        localVariableHeaders["Accept"] = "application/json"
-
+        
         return RequestConfig(
             method = RequestMethod.GET,
-            path = "/api/alerts/{vin}/".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())),
+            path = "/api/probe/location/{vin}/".replace("{"+"vin"+"}", encodeURIComponent(vin.toString())),
             query = localVariableQuery,
             headers = localVariableHeaders,
             requiresAuthentication = true,

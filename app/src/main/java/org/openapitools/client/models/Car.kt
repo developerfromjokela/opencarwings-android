@@ -15,8 +15,11 @@
 
 package org.openapitools.client.models
 
+import org.openapitools.client.models.CommandTimerSetting
 import org.openapitools.client.models.EVInfo
 import org.openapitools.client.models.LocationInfo
+import org.openapitools.client.models.RoutePlan
+import org.openapitools.client.models.SendToCarLocation
 import org.openapitools.client.models.TCUConfiguration
 
 import com.squareup.moshi.Json
@@ -28,8 +31,11 @@ import com.squareup.moshi.JsonClass
  * @param tcuConfiguration 
  * @param location 
  * @param evInfo 
+ * @param sendToCarLocation 
+ * @param routePlans 
  * @param commandTypeDisplay 
  * @param commandResultDisplay 
+ * @param timerCommands 
  * @param vin 
  * @param smsConfig 
  * @param owner 
@@ -56,6 +62,14 @@ import com.squareup.moshi.JsonClass
  * @param commandPayload 
  * @param commandType 
  * @param commandRequestTime 
+ * @param carrier 
+ * @param signalLevel 
+ * @param odometer 
+ * @param naviVersion 
+ * @param mapVersion 
+ * @param tcuVersion 
+ * @param favoriteChannels 
+ * @param customChannels 
  */
 
 
@@ -67,17 +81,26 @@ data class Car (
     @Json(name = "location")
     val location: LocationInfo,
 
+    @Json(name = "ev_info")
+    val evInfo: EVInfo,
+
     @Json(name = "send_to_car_location")
     var sendtoCarLocation: SendToCarLocation? = null,
 
-    @Json(name = "ev_info")
-    val evInfo: EVInfo,
+    @Json(name = "send_to_car_location_all")
+    val sendToCarLocationAll: kotlin.collections.List<SendToCarLocation>,
+
+    @Json(name = "route_plans")
+    val routePlans: kotlin.collections.List<RoutePlan>,
 
     @Json(name = "command_type_display")
     val commandTypeDisplay: kotlin.String,
 
     @Json(name = "command_result_display")
     val commandResultDisplay: kotlin.String,
+
+    @Json(name = "timer_commands")
+    val timerCommands: kotlin.collections.List<CommandTimerSetting>,
 
     @Json(name = "vin")
     val vin: kotlin.String,
@@ -155,7 +178,31 @@ data class Car (
     val commandType: kotlin.Int? = null,
 
     @Json(name = "command_request_time")
-    val commandRequestTime: java.time.OffsetDateTime? = null
+    val commandRequestTime: java.time.OffsetDateTime? = null,
+
+    @Json(name = "carrier")
+    val carrier: kotlin.String? = null,
+
+    @Json(name = "signal_level")
+    val signalLevel: kotlin.Int? = null,
+
+    @Json(name = "odometer")
+    val odometer: kotlin.Int? = null,
+
+    @Json(name = "navi_version")
+    val naviVersion: kotlin.String? = null,
+
+    @Json(name = "map_version")
+    val mapVersion: kotlin.String? = null,
+
+    @Json(name = "tcu_version")
+    val tcuVersion: kotlin.String? = null,
+
+    @Json(name = "favorite_channels")
+    val favoriteChannels: kotlin.Any? = null,
+
+    @Json(name = "custom_channels")
+    val customChannels: kotlin.Any? = null
 
 ) {
 

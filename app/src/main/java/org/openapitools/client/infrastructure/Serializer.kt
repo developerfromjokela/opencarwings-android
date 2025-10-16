@@ -1,7 +1,6 @@
 package org.openapitools.client.infrastructure
 
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 
 object Serializer {

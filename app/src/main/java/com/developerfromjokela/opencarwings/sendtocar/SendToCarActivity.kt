@@ -110,7 +110,7 @@ class SendToCarActivity : AppCompatActivity() {
     }
 
     fun extractUrls(text: String): MutableList<String?> {
-        val containedUrls: MutableList<String?> = ArrayList<String?>()
+        val containedUrls: MutableList<String?> = ArrayList()
         val urlRegex =
             "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)"
         val pattern: Pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE)

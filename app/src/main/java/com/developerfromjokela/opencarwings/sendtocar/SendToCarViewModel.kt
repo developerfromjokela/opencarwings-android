@@ -22,6 +22,7 @@ import org.openapitools.client.apis.TokenApi
 import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
+import org.openapitools.client.models.CarUpdating
 import org.openapitools.client.models.MapLinkResolverInput
 import org.openapitools.client.models.MapLinkResolverResponse
 import org.openapitools.client.models.SendToCarLocation
@@ -81,7 +82,7 @@ class SendToCarViewModel(application: OpenCARWINGS, private val preferencesHelpe
             try {
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 val mapLinkResolverResult = withContext(Dispatchers.IO) {
-                    MaplinkApi().apiMaplinkResolve(MapLinkResolverInput(
+                    MaplinkApi().apiMaplinkResolveCreate(MapLinkResolverInput(
                         url = url
                     ))
                 }
@@ -126,15 +127,14 @@ class SendToCarViewModel(application: OpenCARWINGS, private val preferencesHelpe
         viewModelScope.launch {
             try {
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
-                var car = withContext(Dispatchers.IO) {
-                    CarsApi().apiCarRead(preferencesHelper.activeCarVin!!)
-                }
-
-                car.sendtoCarLocation = SendToCarLocation(
+                val location = SendToCarLocation(
                     name = name.substring(0, name.length.coerceAtMost(32)),
                     lat = location.latitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN),
                     lon = location.longitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN)
                 )
+                val car = CarUpdating(sendToCarLocation = location)
+                car.sendToCarLocation = location
+
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 withContext(Dispatchers.IO) {
                     CarsApi().apiCarPartialUpdate(preferencesHelper.activeCarVin!!, car)

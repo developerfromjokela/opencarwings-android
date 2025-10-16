@@ -18,32 +18,34 @@ package org.openapitools.client.models
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
-import java.time.OffsetDateTime
 
 /**
  * 
  *
- * @param id 
  * @param lat 
  * @param lon 
- * @param name
+ * @param name 
+ * @param id 
+ * @param createdAt 
  */
 
 
 data class SendToCarLocation (
 
-    @Json(name = "id")
-    val id: Int? = null,
-
     @Json(name = "lat")
-    var lat: BigDecimal? = null,
+    val lat: java.math.BigDecimal,
 
     @Json(name = "lon")
-    var lon: BigDecimal? = null,
+    val lon: java.math.BigDecimal,
 
     @Json(name = "name")
-    var name: String? = null,
+    val name: kotlin.String,
+
+    @Json(name = "id")
+    val id: kotlin.Int? = null,
+
+    @Json(name = "created_at")
+    val createdAt: java.time.OffsetDateTime? = null
 
 ) {
 

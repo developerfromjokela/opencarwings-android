@@ -44,9 +44,9 @@
                 android:id="@+id/tabName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                tools:text="TextView"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSecondaryContainer"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="17sp" />
 
             <TextView
@@ -54,8 +54,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:alpha="0.8"
-                android:text="TextView"
-                android:textColor="?attr/colorOnSecondaryContainer"
+                tools:text="TextView"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:visibility="visible" />

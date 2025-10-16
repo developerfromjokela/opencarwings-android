@@ -3,9 +3,8 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>When you select SMS from your device option as SMS provider, the app will now launch your SMS messaging app to send the initial SMS message</li>
-            <li>Send location to car available in Location menu</li>
-            <li><b>You can also share a location to the car from Google Maps or Apple Maps by sharing it to this application. Just choose OpenCARWINGS when you\'re sharing the location.</b></li>
+            <li>Timers are available in the app now</li>
+            <li>Minor bugfixes</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -97,4 +96,39 @@
     <string name="link_send_fail">Could not share this location</string>
     <string name="location_default_name">Location from phone</string>
     <string name="whats_new">What\'s new?</string>
+    <string name="sixKwObcExists">6.6kW OBC Exists</string>
+    <string name="batteryHeaterExists">Battery heater exists</string>
+    <string name="batteryHeaterActive">Battery heater active</string>
+    <string name="timers">Timers</string>
+    <string name="timer_log">Last run: %s, result: %s</string>
+    <string name="add_new_timer">Add new timer</string>
+    <string name="timer_name">Timer name</string>
+    <string name="timer_enabled">Timer enabled</string>
+    <string name="select_time">Select time</string>
+    <string name="command">Command</string>
+    <string name="timer_one_time">One-time</string>
+    <string name="timer_repeating">Repeating</string>
+    <string name="select_date">Select date</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="refresh_data">Refresh data</string>
+    <string name="charge_start">Charge start</string>
+    <string name="ac_on">A/C on</string>
+    <string name="ac_off">A/C off</string>
+    <string name="read_configuration">Read configuration</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="delete_timer">Delete timer</string>
+    <string name="delete_timer_msg">Are you sure you want to delete this timer?</string>
+    <string name="deleting_timer">Deleting timer</string>
+    <string name="select_one_weekday">Select at least one day of week</string>
+    <string name="update_available">Update available!</string>
+    <string name="update_avail_desc">Download update from GitHub or F-Droid</string>
+    <string name="timers_active">%d timer(s) active</string>
+    <string name="no_timers">No timers added</string>
 </resources>

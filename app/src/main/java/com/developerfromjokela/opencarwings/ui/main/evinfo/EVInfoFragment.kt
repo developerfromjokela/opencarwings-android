@@ -1,5 +1,9 @@
 package com.developerfromjokela.opencarwings.ui.main.evinfo
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -8,8 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.websocket.WSClient
+import com.developerfromjokela.opencarwings.websocket.WSClientEvent
+import org.openapitools.client.models.Car
 import org.openapitools.client.models.EVInfo
 import java.math.BigDecimal
 import java.time.ZoneId
@@ -21,7 +29,11 @@ import java.time.format.FormatStyle
  */
 class EVInfoFragment : Fragment() {
 
+    private var serverReceiver: BroadcastReceiver? = null
+
     private var evInfo: EVInfo? = null
+
+    private var evInfoAdapter: EVInfoRecyclerViewAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +53,10 @@ class EVInfoFragment : Fragment() {
 
         // Set the adapter
         if (view is RecyclerView) {
+            evInfoAdapter = EVInfoRecyclerViewAdapter(evInfoToRows(evInfo))
             with(view) {
                 layoutManager = LinearLayoutManager(context)
-                adapter = EVInfoRecyclerViewAdapter(evInfoToRows(evInfo))
+                adapter = evInfoAdapter
             }
         }
         return view
@@ -70,6 +83,7 @@ class EVInfoFragment : Fragment() {
         list += EVInfoItem(R.string.charge_time_120v, formatMinutesToHHMM(evInfo.limitChgTime ?: 2047))
         list += EVInfoItem(R.string.charge_time_240v, formatMinutesToHHMM(evInfo.fullChgTime ?: 2047))
         list += EVInfoItem(R.string.charge_time_6kW, formatMinutesToHHMM(evInfo.obc6kw ?: 4095))
+        list += EVInfoItem(R.string.sixKwObcExists, getString(if (evInfo.obc6kwAvail == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.charge_bars, String.format("%d / %d", evInfo.chargeBars, 12))
         list += EVInfoItem(R.string.capacity_bars_lbl, String.format("%d / %d", evInfo.capBars, 12))
         list += EVInfoItem(R.string.soc_display, String.format("%.02f%%", evInfo.socDisplay))
@@ -86,8 +100,9 @@ class EVInfoFragment : Fragment() {
         list += EVInfoItem(R.string.charging_finish, getString(if (evInfo.chargeFinish == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.ac_lbl, getString(if (evInfo.acStatus == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.remaining_gids, (evInfo.gids ?: 0).toString())
+        list += EVInfoItem(R.string.batteryHeaterExists, getString(if (evInfo.battHeaterAvail == true) R.string.yes else R.string.no))
+        list += EVInfoItem(R.string.batteryHeaterActive, getString(if (evInfo.battHeaterStatus == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.counter_50, (evInfo.counter ?: 0).toString())
-        list += EVInfoItem(R.string.param21, (evInfo.param21 ?: 0).toString())
         val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
 
         val lastUpdated = evInfo.lastUpdated?.atZoneSameInstant(ZoneId.systemDefault())
@@ -96,6 +111,62 @@ class EVInfoFragment : Fragment() {
         list += EVInfoItem(R.string.last_updated, lastUpdated)
 
         return list
+    }
+
+    override fun onResume() {
+        super.onResume()
+        serverReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.hasExtra("type")) {
+                    try {
+                        when (intent.getStringExtra("type")) {
+                            "carInfo" -> {
+                                intent.getStringExtra("car")?.let { alertStr ->
+                                    WSClient.moshi.adapter(Car::class.java)
+                                        .fromJson(
+                                            alertStr
+                                        )?.let {
+                                            WSClientEvent.UpdatedCarInfo(
+                                                it
+                                            )
+                                        }
+                                }?.let {
+                                    evInfo = it.car.evInfo
+                                    evInfoAdapter?.values = evInfoToRows(evInfo)
+                                    evInfoAdapter?.notifyDataSetChanged()
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        context?.let {
+            ContextCompat.registerReceiver(
+                it,
+                serverReceiver,
+                IntentFilter(OpenCARWINGS.WS_BROADCAST),
+                ContextCompat.RECEIVER_EXPORTED
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        serverReceiver?.let {
+            context?.unregisterReceiver(it)
+            serverReceiver = null
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serverReceiver?.let {
+            context?.unregisterReceiver(it)
+            serverReceiver = null
+        }
     }
 
     companion object {

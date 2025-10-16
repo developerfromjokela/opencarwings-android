@@ -18,26 +18,24 @@ package org.openapitools.client.models
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.math.BigDecimal
-import java.time.OffsetDateTime
 
 /**
  * 
  *
  * @param lat 
  * @param lon 
- * @param name
- * @param address
+ * @param name 
+ * @param address 
  */
 
 
 data class MapLinkResolvedLocation (
 
     @Json(name = "lat")
-    val lat: BigDecimal,
+    val lat: java.math.BigDecimal,
 
     @Json(name = "lon")
-    val lon: BigDecimal,
+    val lon: java.math.BigDecimal,
 
     @Json(name = "name")
     val name: String? = null,
@@ -45,7 +43,7 @@ data class MapLinkResolvedLocation (
     @Json(name = "address")
     val address: String? = null,
 
-    ) {
+) {
 
 
 }

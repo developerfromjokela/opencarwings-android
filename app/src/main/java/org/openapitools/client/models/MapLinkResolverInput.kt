@@ -22,14 +22,14 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param url
+ * @param url 
  */
 
 
 data class MapLinkResolverInput (
 
     @Json(name = "url")
-    val url: String
+    val url: kotlin.String
 
 ) {
 

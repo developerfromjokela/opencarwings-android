@@ -15,10 +15,22 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.color.DynamicColors
 import android.Manifest
+import android.graphics.Color
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.developerfromjokela.opencarwings.utils.UpdateUtils.isAppUpToDate
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
+
+    private var topMargin = 0
 
     private val listener = NavController.OnDestinationChangedListener { controller, destination, arguments ->
         findViewById<Spinner>(R.id.spinner_toolbar).visibility = if (destination.id == R.id.mainFragment) View.VISIBLE else View.GONE
@@ -46,6 +58,78 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         NavigationUI.setupActionBarWithNavController(this, navHostFragment.navController, abc)
         askNotificationPermission()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById<View>(android.R.id.content)) { _, insets ->
+                val safeInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                topMargin = safeInsets.top
+                insets
+            }
+        }
+
+        lifecycleScope.launch {
+            val upToDate = isAppUpToDate(this@MainActivity)
+            if (upToDate) {
+                println("App is up to date")
+            } else {
+                println("Update available!")
+                showTopSnackAlert(getString(R.string.update_available), getString(R.string.update_avail_desc))
+            }
+        }
+    }
+
+    private fun getColorAttr(attr: Int, fallback: Int): Int {
+        val typedArray = theme.obtainStyledAttributes(intArrayOf(attr))
+        val color = typedArray.getColor(0, resources.getColor(fallback, theme))
+        typedArray.recycle()
+        return color
+    }
+
+    private fun showTopSnackAlert(title: String, message: String? = null) {
+        val rootVw: View = findViewById(android.R.id.content)
+        val snackbar = Snackbar.make(
+            rootVw,
+            "", // Empty message since we'll use a custom view
+            Snackbar.LENGTH_LONG
+        )
+        snackbar.setDuration(4000)
+
+
+        // Apply Material 3 styling
+        snackbar.setBackgroundTint(getColorAttr(com.google.android.material.R.attr.colorSurface, R.color.surface))
+        snackbar.setActionTextColor(getColorAttr(com.google.android.material.R.attr.colorPrimaryContainer, R.color.primary))
+
+        // Replace default Snackbar content with custom layout
+        val snackbarView = snackbar.view
+        val snackbarTextView = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        snackbarTextView.visibility = View.GONE // Hide default text
+
+
+        val customView = layoutInflater.inflate(R.layout.alert_snackbar_layout, null)
+        val titleView = customView.findViewById<TextView>(R.id.snackbar_title)
+        val subtitleView = customView.findViewById<TextView>(R.id.snackbar_subtitle)
+
+
+        // Set title and subtitle text
+        titleView.text = title
+        message?.let {
+            subtitleView.text = it
+            subtitleView.visibility = View.VISIBLE
+        }
+
+        // Add custom view to Snackbar's ViewGroup
+        snackbarView.setBackgroundColor(Color.TRANSPARENT)
+        (snackbarView as ViewGroup).removeAllViews()
+        snackbarView.addView(customView)
+
+        // Position Snackbar at the top
+        val params = snackbarView.layoutParams as FrameLayout.LayoutParams
+        params.gravity = android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL
+        params.topMargin = topMargin+450
+        snackbarView.layoutParams = params
+
+        // Show the Snackbar
+        snackbar.show()
     }
 
     private fun askNotificationPermission() {

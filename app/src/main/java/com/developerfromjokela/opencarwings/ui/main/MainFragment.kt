@@ -10,7 +10,6 @@ import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
@@ -21,7 +20,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
@@ -30,12 +28,10 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -69,6 +65,8 @@ import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.TCUConfiguration
 import androidx.core.net.toUri
 import com.developerfromjokela.opencarwings.BuildConfig
+import com.developerfromjokela.opencarwings.ui.main.timers.TimersFragment.Companion.ARG_TIMERS
+import com.developerfromjokela.opencarwings.ui.main.timers.TimersListWrapper
 
 class MainFragment : Fragment() {
 
@@ -149,6 +147,9 @@ class MainFragment : Fragment() {
                 }).show()
         }
 
+        var spinner2 = (requireActivity() as MainActivity).findViewById<Spinner>(R.id.spinner_toolbar)
+        val carArrayAdapter = NavAdapter(requireContext(), viewModel.uiState.value?.cars?.map { CarPickerItem(it) } ?: emptyList())
+
         // Setup RecyclerView
         binding.menuItems.layoutManager = LinearLayoutManager(context)
         binding.menuItems.adapter = HomeTabsAdapter(context, emptyList()) // Implement MenuAdapter
@@ -176,6 +177,12 @@ class MainFragment : Fragment() {
                     findNavController().navigate(R.id.action_mainFragment_to_TCUSettingsFragment, Bundle().apply {
                         putString(ARG_TCUCONFIG, WSClient.moshi.adapter(TCUConfiguration::class.java).toJson(viewModel.uiState.value?.car?.tcuConfiguration))
                         putBoolean(ARG_TCUCONFIG_REFRESHING, viewModel.uiState.value?.isCommandExecuting ?: false)
+                    })
+                }
+                if (item.id == 5) {
+                    findNavController().navigate(R.id.action_mainFragment_to_timersFragment, Bundle().apply {
+                        putString(ARG_TIMERS, WSClient.moshi.adapter(TimersListWrapper::class.java).toJson(
+                            TimersListWrapper(viewModel.uiState.value?.car?.timerCommands ?: emptyList())))
                     })
                 }
             }
@@ -229,15 +236,13 @@ class MainFragment : Fragment() {
                 viewModel.smsSendingComplete()
             }
 
-            val spinner2 = (requireActivity() as MainActivity).findViewById<Spinner>(R.id.spinner_toolbar)
-            if (spinner2 != null) {
-                val mArrayAdapter = NavAdapter(requireContext(), state.cars.map { CarPickerItem(it) })
+            if (spinner2 == null) {
+                spinner2 = (requireActivity() as MainActivity).findViewById(R.id.spinner_toolbar)
                 spinner2.onItemSelectedListener = object : OnItemSelectedListener {
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        val selectedCarData = mArrayAdapter.getItem(position)?.car
-                        val prefsManager = PreferencesHelper(requireContext())
-                        if (selectedCarData != null && selectedCarData.vin != prefsManager.activeCarVin) {
-                            prefsManager.activeCarVin = selectedCarData.vin
+                        val selectedCarData = carArrayAdapter.getItem(position)?.car
+                        if (selectedCarData != null && selectedCarData.vin != preferenceHelper.activeCarVin) {
+                            preferenceHelper.activeCarVin = selectedCarData.vin
                             viewModel.onCarChange()
                         }
                     }
@@ -246,10 +251,17 @@ class MainFragment : Fragment() {
 
                     }
                 }
-                if (state.car != null)
-                    spinner2.setSelection(state.cars.indexOfFirst { cD -> cD.vin == state.car.vin  })
-                spinner2.adapter = mArrayAdapter
+                spinner2.adapter = carArrayAdapter
             }
+
+            carArrayAdapter.clear()
+            state.cars.forEach { carArrayAdapter.add(CarPickerItem(it)) }
+            carArrayAdapter.notifyDataSetChanged()
+
+            if (state.car != null) {
+                spinner2.setSelection(state.cars.indexOfFirst { cD -> cD.vin == preferenceHelper.activeCarVin  })
+            }
+
             binding.swipeRefreshHome.isEnabled = !state.isCommandExecuting
             binding.mainContent.visibility = if (state.isFirstTimeLoading) View.INVISIBLE else View.VISIBLE
             binding.initialLoadingProgress.visibility = if (state.isFirstTimeLoading) View.VISIBLE else View.GONE
@@ -282,13 +294,13 @@ class MainFragment : Fragment() {
                 }
             }
 
-            if (state.isCharging) {
+            if (state.isCharging && !state.isQuickCharging) {
                 ContextCompat.getDrawable(requireContext(), R.drawable.l_chg)?.let {
                     layers += it
                 }
             }
 
-            if (state.isQuickCharging) {
+            if (state.isCharging && state.isQuickCharging) {
                 ContextCompat.getDrawable(requireContext(), R.drawable.l_q_chg)?.let {
                     layers += it
                 }
@@ -310,17 +322,17 @@ class MainFragment : Fragment() {
             binding.chgActionButton.isEnabled = !state.isCommandExecuting
             binding.acActionButton.isEnabled = !state.isCommandExecuting
             binding.chgActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
-                com.google.android.material.R.attr.colorButtonNormal else com.google.android.material.R.attr.colorPrimary))
+                com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
             binding.chgActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
-                com.google.android.material.R.attr.colorOnBackground else com.google.android.material.R.attr.colorPrimaryInverse))
+                com.google.android.material.R.attr.colorOnSecondaryContainer else androidx.appcompat.R.attr.colorPrimary))
             binding.acActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)
-                com.google.android.material.R.attr.colorButtonNormal else com.google.android.material.R.attr.colorPrimary))
+                com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
             binding.acActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)
-                com.google.android.material.R.attr.colorOnBackground else com.google.android.material.R.attr.colorPrimaryInverse))
+                com.google.android.material.R.attr.colorOnSecondaryContainer else com.google.android.material.R.attr.colorPrimaryInverse))
             binding.plugActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isPlugActionEnabled)
-                com.google.android.material.R.attr.colorButtonNormal else com.google.android.material.R.attr.colorPrimary))
+                com.google.android.material.R.attr.colorSurfaceContainerLow else com.google.android.material.R.attr.colorPrimaryContainer))
             binding.plugActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isPlugActionEnabled)
-                com.google.android.material.R.attr.colorOnBackground else com.google.android.material.R.attr.colorPrimaryInverse))
+                com.google.android.material.R.attr.colorOnSecondaryContainer else androidx.appcompat.R.attr.colorPrimary))
             binding.chgActionProgress.visibility = if (state.isChgActionInProgress) View.VISIBLE else View.INVISIBLE
             binding.acActionProgress.visibility = if (state.isAcActionInProgress) View.VISIBLE else View.INVISIBLE
             binding.carModel.text = state.carModel
@@ -331,6 +343,7 @@ class MainFragment : Fragment() {
             binding.battSoh.text = "SOH: ${state.soh}"
             binding.capBars.text = getString(R.string.capacity_bars, state.capacityBars)
             binding.battPackCap.text = getString(R.string.battery_cap, state.batteryCapacity)
+            binding.odometer.text = state.odometer
             binding.lastUpdatedDate.text = getString(R.string.last_updated_format, state.lastUpdated)
             (binding.menuItems.adapter as HomeTabsAdapter).updateItems(state.menuItems)
             state.genericError?.let {
@@ -413,7 +426,8 @@ class MainFragment : Fragment() {
                 is WSClientEvent.ServerAck -> Log.d("MainActivity", "Server acknowledged")
                 is WSClientEvent.UpdatedCarInfo -> {
                     Log.d("MainActivity", "Car info updated: ${it.car.vin}")
-                    viewModel.updateUiState(it.car)
+                    if (it.car.vin == viewModel.uiState.value?.car?.vin)
+                        viewModel.updateUiState(it.car)
                 }
             }
         }
@@ -430,7 +444,7 @@ class MainFragment : Fragment() {
 
         // Apply Material 3 styling
         snackbar.setBackgroundTint(getColorAttr(com.google.android.material.R.attr.colorSurface, R.color.surface))
-        snackbar.setActionTextColor(getColorAttr(com.google.android.material.R.attr.colorPrimary, R.color.primary))
+        snackbar.setActionTextColor(getColorAttr(com.google.android.material.R.attr.colorPrimaryContainer, R.color.primary))
 
         // Replace default Snackbar content with custom layout
         val snackbarView = snackbar.view
@@ -475,6 +489,8 @@ class MainFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.resetReconnectionAttempts()
+        if (serverReceiver != null) return
         serverReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 if (intent.hasExtra("type")) {
@@ -534,16 +550,6 @@ class MainFragment : Fragment() {
                 IntentFilter(OpenCARWINGS.WS_BROADCAST),
                 ContextCompat.RECEIVER_EXPORTED
             )
-        }
-
-        viewModel.resetReconnectionAttempts()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        serverReceiver?.let {
-            context?.unregisterReceiver(it)
-            serverReceiver = null
         }
     }
 

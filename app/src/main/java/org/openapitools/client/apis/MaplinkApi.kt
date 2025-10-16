@@ -19,7 +19,9 @@ import java.io.IOException
 import okhttp3.Call
 import okhttp3.HttpUrl
 
-import org.openapitools.client.models.CommandError
+import org.openapitools.client.models.MapLinkResolverInput
+import org.openapitools.client.models.MapLinkResolverResponse
+
 import com.squareup.moshi.Json
 
 import org.openapitools.client.infrastructure.ApiClient
@@ -35,21 +37,19 @@ import org.openapitools.client.infrastructure.RequestMethod
 import org.openapitools.client.infrastructure.ResponseType
 import org.openapitools.client.infrastructure.Success
 import org.openapitools.client.infrastructure.toMultiValue
-import org.openapitools.client.models.MapLinkResolverInput
-import org.openapitools.client.models.MapLinkResolverResponse
 
-class MaplinkApi(basePath: String = defaultBasePath, client: Call.Factory = defaultClient) : ApiClient(basePath, client) {
+class MaplinkApi(basePath: kotlin.String = defaultBasePath, client: Call.Factory = ApiClient.defaultClient) : ApiClient(basePath, client) {
     companion object {
         @JvmStatic
         val defaultBasePath: String by lazy {
-            System.getProperties().getProperty(baseUrlKey, "http://opencarwings.viaaq.eu")
+            System.getProperties().getProperty(ApiClient.baseUrlKey, "https://opencarwings.viaaq.eu")
         }
     }
 
     /**
-     * POST /api/maplink/resolve/
+     * POST /api/maplink/resolve
      * 
-     * 
+     * Resolve maps link from Google or Apple into location
      * @param `data` 
      * @return MapLinkResolverResponse
      * @throws IllegalStateException If the request is not correctly configured
@@ -60,8 +60,8 @@ class MaplinkApi(basePath: String = defaultBasePath, client: Call.Factory = defa
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class, UnsupportedOperationException::class, ClientException::class, ServerException::class)
-    fun apiMaplinkResolve(`data`: MapLinkResolverInput) : MapLinkResolverResponse {
-        val localVarResponse = apiMaplinkResolveWithHttpInfo(`data` = `data`)
+    fun apiMaplinkResolveCreate(`data`: MapLinkResolverInput) : MapLinkResolverResponse {
+        val localVarResponse = apiMaplinkResolveCreateWithHttpInfo(`data` = `data`)
 
         return when (localVarResponse.responseType) {
             ResponseType.Success -> (localVarResponse as Success<*>).data as MapLinkResolverResponse
@@ -81,16 +81,16 @@ class MaplinkApi(basePath: String = defaultBasePath, client: Call.Factory = defa
     /**
      * POST /api/maplink/resolve
      * 
-     * 
+     * Resolve maps link from Google or Apple into location
      * @param `data` 
-     * @return ApiResponse<JWTTokenObtainPair?>
+     * @return ApiResponse<MapLinkResolverResponse?>
      * @throws IllegalStateException If the request is not correctly configured
      * @throws IOException Rethrows the OkHttp execute method exception
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(IllegalStateException::class, IOException::class)
-    fun apiMaplinkResolveWithHttpInfo(`data`: MapLinkResolverInput) : ApiResponse<MapLinkResolverResponse?> {
-        val localVariableConfig = apiMaplinkResolveRequestConfig(`data` = `data`)
+    fun apiMaplinkResolveCreateWithHttpInfo(`data`: MapLinkResolverInput) : ApiResponse<MapLinkResolverResponse?> {
+        val localVariableConfig = apiMaplinkResolveCreateRequestConfig(`data` = `data`)
 
         return request<MapLinkResolverInput, MapLinkResolverResponse>(
             localVariableConfig
@@ -98,12 +98,12 @@ class MaplinkApi(basePath: String = defaultBasePath, client: Call.Factory = defa
     }
 
     /**
-     * To obtain the request config of the operation apiMaplinkResolve
+     * To obtain the request config of the operation apiMaplinkResolveCreate
      *
      * @param `data` 
      * @return RequestConfig
      */
-    fun apiMaplinkResolveRequestConfig(`data`: MapLinkResolverInput) : RequestConfig<MapLinkResolverInput> {
+    fun apiMaplinkResolveCreateRequestConfig(`data`: MapLinkResolverInput) : RequestConfig<MapLinkResolverInput> {
         val localVariableBody = `data`
         val localVariableQuery: MultiValueMap = mutableMapOf()
         val localVariableHeaders: MutableMap<String, String> = mutableMapOf()
@@ -121,8 +121,6 @@ class MaplinkApi(basePath: String = defaultBasePath, client: Call.Factory = defa
     }
 
 
-
-
-    private fun encodeURIComponent(uriComponent: String): String =
+    private fun encodeURIComponent(uriComponent: kotlin.String): kotlin.String =
         HttpUrl.Builder().scheme("http").host("localhost").addPathSegment(uriComponent).build().encodedPathSegments[0]
 }

@@ -3,9 +3,8 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Cuando seleccionas SMS desde la opción de dispositivo como proveedor de SMS, la aplicación ahora abrirá tu aplicación de mensajería SMS para enviar el mensaje SMS inicial</li>
-            <li>Enviar ubicación al coche disponible en el menú de Ubicación</li>
-            <li>También puedes compartir una ubicación al coche desde Google Maps o Apple Maps compartiéndola con esta aplicación. Solo selecciona OpenCARWINGS cuando compartas la ubicación.</li>
+            <li>Los temporizadores ya están disponibles en la aplicación</li>
+            <li>Correcciones de errores menores</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>
@@ -97,4 +96,39 @@
     <string name="link_send_fail">No se pudo compartir esta ubicación</string>
     <string name="location_default_name">Ubicacion desde el telefono</string>
     <string name="whats_new">¿Qué hay de nuevo?</string>
+    <string name="sixKwObcExists">Cargador integrado de 6,6 kW presente</string>
+    <string name="batteryHeaterExists">Calentador de batería presente</string>
+    <string name="batteryHeaterActive">Calentamiento de batería activo</string>
+    <string name="timers">Temporizadores</string>
+    <string name="timer_log">Última vez: %s, resultados: %s</string>
+    <string name="add_new_timer">Agregar nuevo temporizador</string>
+    <string name="timer_name">Timer name</string>
+    <string name="timer_enabled">Temporizador habilitado</string>
+    <string name="select_time">Select time</string>
+    <string name="command">Comando</string>
+    <string name="timer_one_time">Una sola vez</string>
+    <string name="timer_repeating">Repitiendo</string>
+    <string name="select_date">Seleccionar fecha</string>
+    <string name="monday">Lunes</string>
+    <string name="tuesday">Martes</string>
+    <string name="wednesday">Miércoles</string>
+    <string name="thursday">Jueves</string>
+    <string name="friday">Viernes</string>
+    <string name="saturday">Sábado</string>
+    <string name="sunday">Domingo</string>
+    <string name="refresh_data">Actualizar datos</string>
+    <string name="charge_start">Inicio de carga</string>
+    <string name="ac_on">Aire acondicionado encendido</string>
+    <string name="ac_off">Aire acondicionado apagado</string>
+    <string name="read_configuration">Leer configuración</string>
+    <string name="save">Ahorrar</string>
+    <string name="delete">Borrar</string>
+    <string name="delete_timer">Eliminar temporizador</string>
+    <string name="delete_timer_msg">¿Estás seguro que deseas eliminar este temporizador?</string>
+    <string name="deleting_timer">Borrando el temporizador</string>
+    <string name="select_one_weekday">Seleccione al menos un día de la semana</string>
+    <string name="update_available">Update available!</string>
+    <string name="update_avail_desc">Descargar la actualización de la aplicación desde GitHub o F-Droid</string>
+    <string name="timers_active">%d temporizador(es) activo</string>
+    <string name="no_timers">No se han añadido temporizadores</string>
 </resources>

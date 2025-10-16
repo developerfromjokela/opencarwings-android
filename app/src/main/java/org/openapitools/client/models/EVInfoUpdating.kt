@@ -15,7 +15,6 @@
 
 package org.openapitools.client.models
 
-import org.openapitools.client.models.MapLinkResolvedLocation
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -23,22 +22,14 @@ import com.squareup.moshi.JsonClass
 /**
  * 
  *
- * @param status 
- * @param cause 
- * @param location 
+ * @param forceSocDisplay 
  */
 
 
-data class MapLinkResolverResponse (
+data class EVInfoUpdating (
 
-    @Json(name = "status")
-    val status: kotlin.Boolean,
-
-    @Json(name = "cause")
-    val cause: kotlin.String? = null,
-
-    @Json(name = "location")
-    val location: MapLinkResolvedLocation? = null
+    @Json(name = "force_soc_display")
+    val forceSocDisplay: kotlin.Boolean? = null
 
 ) {
 

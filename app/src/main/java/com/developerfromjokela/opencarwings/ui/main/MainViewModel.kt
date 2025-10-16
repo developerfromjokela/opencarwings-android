@@ -1,16 +1,15 @@
 
 package com.developerfromjokela.opencarwings.ui.main
 
-import android.content.Intent
-import android.net.Uri
+import android.location.Geocoder
 import android.os.Build
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.developerfromjokela.opencarwings.BuildConfig
@@ -34,10 +33,12 @@ import org.openapitools.client.models.CarSerializerList
 import org.openapitools.client.models.TokenBlacklist
 import org.openapitools.client.models.TokenMetadataUpdate
 import org.openapitools.client.models.TokenRefresh
+import java.io.IOException
 import java.math.BigDecimal
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Locale
 
 
 data class CarUiState(
@@ -67,6 +68,7 @@ data class CarUiState(
     val naviId: String = "",
     val tcuSoftware: String = "",
     val soh: String = "",
+    val odometer: String = "",
     val capacityBars: String = "0 / 12",
     val batteryCapacity: String = "0.00 kWh",
     val lastUpdated: String = "",
@@ -394,7 +396,8 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                     return@launch
                 }
 
-                preferencesHelper.activeCarVin = selectedCarListItm.vin
+                if (preferencesHelper.activeCarVin == null || preferencesHelper.activeCarVin!!.isEmpty())
+                    preferencesHelper.activeCarVin = selectedCarListItm.vin
 
                 val selectedCar: Car = withContext(Dispatchers.IO) {
                     CarsApi().apiCarRead(selectedCarListItm.vin)
@@ -531,7 +534,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
         var carGeneration = "ZE0"
 
-        if (car.vehicleCode1 == 92) {
+        if (car.vehicleCode1 == 92 || car.vehicleCode1 == 146) {
             carGeneration = "AZE0"
         }
 
@@ -559,6 +562,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             vin = car.vin,
             tcuId = car.tcuSerial ?: "",
             naviId = car.iccid ?: "",
+            odometer = car.odometer?.let {if (it != -1) "$it km" else "--"} ?: "--",
             tcuSoftware = car.tcuVer ?: "",
             soh = evInfo.soh?.let { "$it%" } ?: "",
             capacityBars = evInfo.capBars?.let { "$it / 12" } ?: "0 / 12",
@@ -567,15 +571,30 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             isChgActionInProgress = car.commandRequested == true && car.commandType == 2,
             isAcActionInProgress = car.commandRequested == true && (car.commandType == 3 || car.commandType == 4),
             isPlugActionEnabled = evInfo.pluggedIn ?: false,
-            menuItems = getMenuItems(),
+            menuItems = getMenuItems(car),
             error = null
         )
     }
 
-    private fun getMenuItems(): List<MenuItem> {
+    private fun getMenuItems(car: Car): List<MenuItem> {
+        var geocodedLocation: String? = null
+        val geocoder = Geocoder(application, Locale.getDefault())
+        try {
+            val addresses = geocoder.getFromLocation(car.location.lat?.toDouble() ?: 0.0, car.location.lon?.toDouble() ?: 0.0, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val returnedAddress = addresses[0]
+                if (returnedAddress.thoroughfare != null)
+                    geocodedLocation = "${returnedAddress.thoroughfare} ${returnedAddress.subThoroughfare ?: returnedAddress.premises ?: ""}"
+                else
+                    geocodedLocation = returnedAddress.getAddressLine(0)
+            }
+        } catch (ignored: IOException) {
+            ignored.printStackTrace()
+        }
         return listOf(
             MenuItem(1, R.string.ev_info, null, R.drawable.ic_ev_info),
-            MenuItem(2, R.string.location, null, R.drawable.ic_location),
+            MenuItem(2, R.string.location, geocodedLocation, R.drawable.ic_location),
+            MenuItem(5, R.string.timers, if (car.timerCommands.any { it.enabled == true }) application.getString(R.string.timers_active, car.timerCommands.filter { it.enabled == true }.size) else null , R.drawable.ic_timers),
             MenuItem(3, R.string.notifications, null, R.drawable.ic_notifications),
             MenuItem(4, R.string.tcu_settings, null, R.drawable.ic_settings)
         )

@@ -32,6 +32,7 @@ class OpenCARWINGS: Application() {
             token = this.preferencesHelper.accessToken ?: "",
             onWSEvent = { event ->
                 val broadcastIntent = Intent(WS_BROADCAST)
+                var vin: String? = null
                 when (event) {
                     is WSClientEvent.Alert -> {
                         broadcastIntent.putExtra("type", "alert")
@@ -55,11 +56,13 @@ class OpenCARWINGS: Application() {
                         broadcastIntent.putExtra("type", "serverAck")
                     }
                     is WSClientEvent.UpdatedCarInfo -> {
+                        vin = event.car.vin
                         broadcastIntent.putExtra("type", "carInfo")
                         broadcastIntent.putExtra("car", moshi.adapter(Car::class.java).toJson(event.car))
                     }
                 }
-                sendBroadcast(broadcastIntent)
+                if (broadcastIntent.extras?.containsKey("car") == false || vin == preferencesHelper.activeCarVin)
+                    sendBroadcast(broadcastIntent)
             }
         )
         super.onCreate()

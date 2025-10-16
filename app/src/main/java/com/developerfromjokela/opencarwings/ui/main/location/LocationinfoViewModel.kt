@@ -22,6 +22,7 @@ import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
 import org.openapitools.client.models.Car
+import org.openapitools.client.models.CarUpdating
 import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.SendToCarLocation
 import org.openapitools.client.models.TokenRefresh
@@ -72,7 +73,6 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
         if (!serverUrl.startsWith("https://")) {
             serverUrl = "https://${serverUrl}"
         }
-        println(serverUrl)
         System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
     }
 
@@ -89,12 +89,12 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
                 if (uiState.value?.car == null) {
                     throw Exception("Car is null!")
                 }
-                var car: Car = uiState.value!!.car!!
-                car.sendtoCarLocation = SendToCarLocation(
+                val car = CarUpdating(sendToCarLocation = SendToCarLocation(
                     name = name.substring(0, name.length.coerceAtMost(32)),
                     lat = location.latitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN),
                     lon = location.longitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN)
-                )
+                ))
+
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 val returningCar = withContext(Dispatchers.IO) {
                     CarsApi().apiCarPartialUpdate(preferencesHelper.activeCarVin!!, car)

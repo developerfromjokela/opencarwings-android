@@ -9,7 +9,7 @@ import com.developerfromjokela.opencarwings.databinding.FragmentEvInfoBinding
 
 
 class EVInfoRecyclerViewAdapter(
-    val values: List<EVInfoItem>
+    var values: List<EVInfoItem>
 ) : RecyclerView.Adapter<EVInfoRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

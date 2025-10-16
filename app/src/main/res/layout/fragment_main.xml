@@ -9,9 +9,6 @@
     tools:context=".ui.main.MainFragment">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:id="@+id/mainFragmentCoordinator"
         android:layout_height="match_parent">
@@ -328,6 +325,17 @@
                         app:layout_constraintStart_toEndOf="@id/carModel"
                         app:layout_constraintStart_toStartOf="parent"
                         tools:text="VIN" />
+
+                    <TextView
+                        android:id="@+id/odometer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:alpha="0.6"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/carModel"
+                        app:layout_constraintStart_toStartOf="parent"
+                        tools:text="1200 km" />
 
                     <TextView
                         android:id="@+id/tcuId"
