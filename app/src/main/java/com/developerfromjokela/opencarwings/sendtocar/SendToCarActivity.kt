@@ -95,7 +95,6 @@ class SendToCarActivity : AppCompatActivity() {
                 if (receivedText != null) {
                     val urls = extractUrls(receivedText)
                     if (urls.isNotEmpty()) {
-                        println(urls.first()!!)
                         viewModel.linkToLocation(urls.first()!!)
                         return
                     }
