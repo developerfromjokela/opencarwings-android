@@ -324,7 +324,7 @@ class MainFragment : Fragment() {
             binding.chgActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
                 com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
             binding.chgActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
-                com.google.android.material.R.attr.colorOnSecondaryContainer else androidx.appcompat.R.attr.colorPrimary))
+                com.google.android.material.R.attr.colorOnSecondaryContainer else com.google.android.material.R.attr.colorPrimaryInverse))
             binding.acActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)
                 com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
             binding.acActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)

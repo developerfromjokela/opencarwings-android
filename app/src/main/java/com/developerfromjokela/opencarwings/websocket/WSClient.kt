@@ -3,10 +3,15 @@ package com.developerfromjokela.opencarwings.websocket
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.squareup.moshi.*
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 import org.openapitools.client.infrastructure.BigDecimalAdapter
 import org.openapitools.client.infrastructure.BigIntegerAdapter
 import org.openapitools.client.infrastructure.ByteArrayAdapter
@@ -17,7 +22,7 @@ import org.openapitools.client.infrastructure.URIAdapter
 import org.openapitools.client.infrastructure.UUIDAdapter
 import org.openapitools.client.models.AlertHistory
 import org.openapitools.client.models.Car
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 sealed class WSClientEvent {
