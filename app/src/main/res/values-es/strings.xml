@@ -3,7 +3,6 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Los temporizadores ya están disponibles en la aplicación</li>
             <li>Correcciones de errores menores</li>
         </ul>]]>
     </string>
@@ -128,7 +127,9 @@
     <string name="deleting_timer">Borrando el temporizador</string>
     <string name="select_one_weekday">Seleccione al menos un día de la semana</string>
     <string name="update_available">Update available!</string>
-    <string name="update_avail_desc">Descargar la actualización de la aplicación desde GitHub o F-Droid</string>
+    <string name="update_avail_desc">Descargar la actualización de la aplicación desde Google Play, GitHub o F-Droid</string>
     <string name="timers_active">%d temporizador(es) activo</string>
     <string name="no_timers">No se han añadido temporizadores</string>
+    <string name="list_empty">La lista está vacía</string>
+    <string name="select_command">Por favor, seleccione un comando</string>
 </resources>

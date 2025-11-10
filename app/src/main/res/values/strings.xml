@@ -3,7 +3,6 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Timers are available in the app now</li>
             <li>Minor bugfixes</li>
         </ul>]]>
     </string>
@@ -128,7 +127,9 @@
     <string name="deleting_timer">Deleting timer</string>
     <string name="select_one_weekday">Select at least one day of week</string>
     <string name="update_available">Update available!</string>
-    <string name="update_avail_desc">Download update from GitHub or F-Droid</string>
+    <string name="update_avail_desc">Download update from Google Play, GitHub or F-Droid</string>
     <string name="timers_active">%d timer(s) active</string>
     <string name="no_timers">No timers added</string>
+    <string name="list_empty">The list is empty</string>
+    <string name="select_command">Please choose a command</string>
 </resources>

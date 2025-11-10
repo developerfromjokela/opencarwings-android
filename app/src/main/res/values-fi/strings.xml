@@ -4,7 +4,6 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Ajastimet ovat nyt saatavilla sovelluksessa</li>
             <li>Bugikorjauksia</li>
         </ul>
         ]]>
@@ -128,7 +127,9 @@
     <string name="deleting_timer">Poistetaan ajastinta</string>
     <string name="select_one_weekday">Valitse vähintään yksi viikon päivä</string>
     <string name="update_available">Päivitys saatavilla!</string>
-    <string name="update_avail_desc">Lataa sovelluksen päivitys Githubista tai F-Droidista</string>
+    <string name="update_avail_desc">Lataa sovelluksen päivitys Githubista Google Play kaupasta tai F-Droidista</string>
     <string name="timers_active">%d ajastin(ta) käytössä</string>
     <string name="no_timers">Ei ajastimia lisättynä</string>
+    <string name="list_empty">Lista on tyhjä</string>
+    <string name="select_command">Ole hyvä ja valitse komento</string>
 </resources>

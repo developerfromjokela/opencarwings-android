@@ -512,6 +512,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             "l_pearlwhite" -> R.drawable.l_pearlwhite
             "l_planetblue" -> R.drawable.l_planetblue
             "l_superblack" -> R.drawable.l_superblack
+            "env200_white" -> R.drawable.env200_white
             else -> null
         }
 
@@ -560,10 +561,10 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             carModel = "Nissan LEAF $carGeneration",
             carName = car.nickname ?: car.vin,
             vin = car.vin,
-            tcuId = car.tcuSerial ?: "",
-            naviId = car.iccid ?: "",
+            tcuId = car.tcuModel ?: "",
+            naviId = car.tcuSerial ?: "",
             odometer = car.odometer?.let {if (it != -1) "$it km" else "--"} ?: "--",
-            tcuSoftware = car.tcuVer ?: "",
+            tcuSoftware = car.tcuVer ?: car.tcuVersion ?: "",
             soh = evInfo.soh?.let { "$it%" } ?: "",
             capacityBars = evInfo.capBars?.let { "$it / 12" } ?: "0 / 12",
             batteryCapacity = batteryCapacity,

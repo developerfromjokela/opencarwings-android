@@ -193,9 +193,9 @@ class TimerEditFragment : Fragment() {
                 binding.timerDate.setText(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(dateSelection))
             }
         } else {
-            binding.timerCommand.setText(R.string.refresh_data)
+            binding.timerCommand.setText(null)
             binding.timerCommand.setAdapter(adapter)
-            binding.timerCommand.setSelection(0)
+            binding.timerCommand.clearListSelection()
         }
     }
 
@@ -203,6 +203,11 @@ class TimerEditFragment : Fragment() {
 
         if (timeSelection == null) {
             binding.timerTime.setError(getString(R.string.select_time))
+            return
+        }
+
+        if (commandType < 1) {
+            binding.timerCommand.setError(getString(R.string.select_command))
             return
         }
 
@@ -216,7 +221,7 @@ class TimerEditFragment : Fragment() {
             }
         }
 
-        println(timeSelection)
+
         val newTimer = timer ?: CommandTimerSetting(name = binding.timerName.text?.toString() ?: "", time = CustomDateUtils.formatToUTCTimerTime(timeSelection) ?: "")
 
         newTimer.id = timer?.id

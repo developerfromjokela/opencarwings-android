@@ -307,8 +307,11 @@ class MainFragment : Fragment() {
             }
 
             if (state.carGear != 0) {
+                var animId = R.drawable.l_tireanim;
+                if (state.car?.color?.value?.startsWith("env200") == true)
+                    animId = R.drawable.env200_tireanim;
                 val anim =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.l_tireanim) as AnimationDrawable
+                    ContextCompat.getDrawable(requireContext(), animId) as AnimationDrawable
                 layers += anim
                 anim.start()
             }

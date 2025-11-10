@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentTimerItemBinding
+import com.developerfromjokela.opencarwings.databinding.RecyclerviewEmptyviewBinding
 import com.developerfromjokela.opencarwings.utils.CustomDateUtils
+import com.developerfromjokela.opencarwings.utils.EmptyViewViewHolder
 import org.openapitools.client.models.CommandTimerSetting
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -15,10 +17,23 @@ import java.time.format.FormatStyle
 class TimersRecyclerViewAdapter(
     var values: List<CommandTimerSetting>,
     val clickCallback: (itm: CommandTimerSetting) -> Unit
-) : RecyclerView.Adapter<TimersRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    companion object {
+        const val VIEW_EMPTY = 0
+        const val VIEW_TIMER = 1
+    }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        if (viewType == VIEW_EMPTY) {
+            return EmptyViewViewHolder(
+                RecyclerviewEmptyviewBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+            )
+        }
         return ViewHolder(
             FragmentTimerItemBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -26,10 +41,31 @@ class TimersRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun getItemCount(): Int {
+        return if (values.isEmpty()) {
+            1
+        } else {
+            values.size
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (values.isEmpty()) {
+            return VIEW_EMPTY
+        } else {
+            return VIEW_TIMER
+        }
+    }
+
+    override fun onBindViewHolder(genericHolder: RecyclerView.ViewHolder, position: Int) {
+        if (getItemViewType(position) == VIEW_EMPTY) {
+            val emptyRecyclerView = genericHolder as EmptyViewViewHolder
+            emptyRecyclerView.emptyLabel.setText(R.string.no_timers)
+            return
+        }
+        val holder = genericHolder as ViewHolder
         val item = values[position]
         holder.timerEnabled.isChecked = item.enabled == true
         holder.timerName.text = item.name
@@ -57,8 +93,6 @@ class TimersRecyclerViewAdapter(
         }
         holder.timerLog.text = holder.timerLog.context.getString(R.string.timer_log, lastExecDate, item.lastCommandResultDisplay ?: "--")
     }
-
-    override fun getItemCount(): Int = values.size
 
     inner class ViewHolder(binding: FragmentTimerItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val timerEnabled = binding.timerEnabled
