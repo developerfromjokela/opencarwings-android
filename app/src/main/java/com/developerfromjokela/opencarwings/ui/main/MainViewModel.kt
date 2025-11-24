@@ -80,7 +80,9 @@ data class CarUiState(
     val error: String? = null,
     val fatalError: Boolean = false,
     val forceLogout: Boolean = false,
-    val sendSmsToNumber: String? = null
+    val sendSmsToNumber: String? = null,
+    val signalDrawable: Int? = null,
+    val carrier: String? = null
 )
 
 // Data class for RecyclerView menu items
@@ -121,7 +123,6 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         if (!serverUrl.startsWith("https://")) {
             serverUrl = "https://${serverUrl}"
         }
-        println(serverUrl)
         System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
         fetchInitialData()
     }
@@ -367,7 +368,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         }
     }
 
-    private fun fetchInitialData() {
+    public fun fetchInitialData() {
         firstSocketConnection.value = false
         viewModelScope.launch {
             try {
@@ -411,7 +412,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 updateUiState(selectedCar)
 
                 // Start up websocket
-                WSClient.getInstance().configure(preferencesHelper.server?.replace("https://", "wss://")+"/ws/notif/", preferencesHelper.accessToken ?: "")
+                WSClient.getInstance().configure(preferencesHelper.server?.replace("https://", "wss://")?.replace("http://", "ws://")+"/ws/notif/", preferencesHelper.accessToken ?: "")
                 WSClient.getInstance().connect()
             } catch (e: ClientException) {
                 if (e.statusCode != 401 && e.statusCode != 403) {
@@ -539,12 +540,23 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             carGeneration = "AZE0"
         }
 
+        val signalDrawable = when (car.signalLevel) {
+            1 -> R.drawable.signal_1
+            2 -> R.drawable.signal_2
+            3 -> R.drawable.signal_3
+            4 -> R.drawable.signal_3
+            5 -> R.drawable.signal_4
+            else -> R.drawable.signal_0
+        }
+
         _uiState.value = CarUiState(
             car = car,
             cars = _carsState.value ?: emptyList(),
             isFirstTimeLoading = false,
             isLoading = false,
             isRefreshing = false,
+            signalDrawable = signalDrawable,
+            carrier = car.carrier ?: "",
             isCommandExecuting = car.commandRequested == true,
             batteryPercent = soc,
             carStatus = carStatus,

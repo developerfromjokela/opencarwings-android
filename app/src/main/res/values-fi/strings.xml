@@ -4,7 +4,8 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Bugikorjauksia</li>
+            <li>Sallittu HTTP palvelinosoite</li>
+            <li>Lisätty TCU:n signaalitaso sekä operaattorin nimi</li>
         </ul>
         ]]>
     </string>

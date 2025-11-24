@@ -3,7 +3,8 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Correcciones de errores menores</li>
+            <li>Permitir URL de servidor HTTP</li>
+            <li>Agregar señal celular TCU y operador</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>

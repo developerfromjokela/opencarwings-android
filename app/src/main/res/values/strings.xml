@@ -3,7 +3,8 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Minor bugfixes</li>
+            <li>Allow HTTP server URL</li>
+            <li>Add TCU Cellular Signal and network provider name</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>

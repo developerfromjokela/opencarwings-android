@@ -87,7 +87,6 @@ class MainFragment : Fragment() {
             this,
             factory = MainViewModel.Factory
         )[MainViewModel::class]
-
     }
 
     override fun onCreateView(
@@ -251,12 +250,13 @@ class MainFragment : Fragment() {
 
                     }
                 }
-                spinner2.adapter = carArrayAdapter
             }
 
             carArrayAdapter.clear()
             state.cars.forEach { carArrayAdapter.add(CarPickerItem(it)) }
             carArrayAdapter.notifyDataSetChanged()
+            if (spinner2 != null)
+                spinner2.adapter = carArrayAdapter
 
             if (state.car != null) {
                 spinner2.setSelection(state.cars.indexOfFirst { cD -> cD.vin == preferenceHelper.activeCarVin  })
@@ -348,6 +348,8 @@ class MainFragment : Fragment() {
             binding.battPackCap.text = getString(R.string.battery_cap, state.batteryCapacity)
             binding.odometer.text = state.odometer
             binding.lastUpdatedDate.text = getString(R.string.last_updated_format, state.lastUpdated)
+            binding.mainOperatorName.text = state.carrier
+            binding.mainSignal.setImageResource(state.signalDrawable ?: R.drawable.signal_0)
             (binding.menuItems.adapter as HomeTabsAdapter).updateItems(state.menuItems)
             state.genericError?.let {
                 context?.let {ctx ->
@@ -493,6 +495,8 @@ class MainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.resetReconnectionAttempts()
+        if (viewModel.uiState.value?.isFirstTimeLoading == false)
+            viewModel.refreshCurrentCarInfo()
         if (serverReceiver != null) return
         serverReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
@@ -662,6 +666,16 @@ class MainFragment : Fragment() {
             }
             row?.findViewById<TextView>(R.id.txt_title)?.text = getItem(position)?.car?.nickname
             row?.findViewById<TextView>(R.id.txt_vin)?.text = getItem(position)?.car?.vin
+            row?.findViewById<TextView>(R.id.operatorName)?.text = getItem(position)?.car?.carrier ?: ""
+            val signalDrawable = when (getItem(position)?.car?.signalLevel) {
+                1 -> R.drawable.signal_1
+                2 -> R.drawable.signal_2
+                3 -> R.drawable.signal_3
+                4 -> R.drawable.signal_3
+                5 -> R.drawable.signal_4
+                else -> R.drawable.signal_0
+            }
+            row?.findViewById<ImageView>(R.id.menu_signal_icon)?.setImageResource(signalDrawable)
             return row!!
         }
     }

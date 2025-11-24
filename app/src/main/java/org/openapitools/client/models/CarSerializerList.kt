@@ -47,7 +47,13 @@ data class CarSerializerList (
     val lastConnection: java.time.OffsetDateTime? = null,
 
     @Json(name = "nickname")
-    val nickname: kotlin.String? = null
+    val nickname: kotlin.String? = null,
+
+    @Json(name = "carrier")
+    val carrier: kotlin.String? = null,
+
+    @Json(name = "signalLevel")
+    val signalLevel: kotlin.Int? = null
 
 ) {
 
