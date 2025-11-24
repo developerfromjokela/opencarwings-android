@@ -21,6 +21,7 @@ import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentTimerEditBinding
 import com.developerfromjokela.opencarwings.utils.CustomDateUtils
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
+import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
@@ -89,11 +90,7 @@ class TimerEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         preferencesHelper = PreferencesHelper(requireContext())
-        var serverUrl = PreferencesHelper(requireContext()).server ?: "";
-        if (!serverUrl.startsWith("https://")) {
-            serverUrl = "https://${serverUrl}"
-        }
-        System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
+        System.getProperties().setProperty(ApiClient.baseUrlKey, ServerBaseURLUtils.formatBaseURL(preferencesHelper.server))
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {

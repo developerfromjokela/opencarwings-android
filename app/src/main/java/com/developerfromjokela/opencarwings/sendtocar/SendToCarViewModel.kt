@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
+import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,12 +69,7 @@ class SendToCarViewModel(application: OpenCARWINGS, private val preferencesHelpe
     init {
         // Initialize with loading state
         _uiState.value = SendToCarUiState()
-        var serverUrl = preferencesHelper.server ?: "";
-        if (!serverUrl.startsWith("https://")) {
-            serverUrl = "https://${serverUrl}"
-        }
-        println(serverUrl)
-        System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
+        System.getProperties().setProperty(ApiClient.baseUrlKey, ServerBaseURLUtils.formatBaseURL(preferencesHelper.server))
     }
 
 

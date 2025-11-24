@@ -273,6 +273,8 @@ open class ApiClient(val baseUrl: String, val client: Call.Factory = defaultClie
     protected inline fun <reified I, reified T: Any?> request(requestConfig: RequestConfig<I>): ApiResponse<T?> {
         val httpUrl = baseUrl.toHttpUrlOrNull() ?: throw IllegalStateException("baseUrl is invalid.")
 
+        println(httpUrl)
+
         // take authMethod from operation
         updateAuthParams(requestConfig)
 

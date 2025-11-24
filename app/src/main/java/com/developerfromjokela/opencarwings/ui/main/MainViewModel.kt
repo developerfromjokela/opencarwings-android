@@ -16,6 +16,7 @@ import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
+import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -119,11 +120,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
     init {
         // Initialize with loading state
         _uiState.value = CarUiState(isFirstTimeLoading = true)
-        var serverUrl = preferencesHelper.server ?: "";
-        if (!serverUrl.startsWith("https://")) {
-            serverUrl = "https://${serverUrl}"
-        }
-        System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
+        System.getProperties().setProperty(ApiClient.baseUrlKey, ServerBaseURLUtils.formatBaseURL(preferencesHelper.server))
         fetchInitialData()
     }
 

@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
+import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,11 +70,7 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
     init {
         // Initialize with loading state
         _uiState.value = LocationUiState()
-        var serverUrl = preferencesHelper.server ?: "";
-        if (!serverUrl.startsWith("https://")) {
-            serverUrl = "https://${serverUrl}"
-        }
-        System.getProperties().setProperty(ApiClient.baseUrlKey, serverUrl)
+        System.getProperties().setProperty(ApiClient.baseUrlKey, ServerBaseURLUtils.formatBaseURL(preferencesHelper.server))
     }
 
     fun refreshCurrentCarInfo() {

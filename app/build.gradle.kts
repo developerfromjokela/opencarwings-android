@@ -15,7 +15,7 @@ android {
         applicationId = "com.developerfromjokela.opencarwings"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
+        versionCode = 8
         versionName = "1.0.2"
 
         multiDexEnabled = true
