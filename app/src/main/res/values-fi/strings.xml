@@ -133,4 +133,19 @@
     <string name="no_timers">Ei ajastimia lisättynä</string>
     <string name="list_empty">Lista on tyhjä</string>
     <string name="select_command">Ole hyvä ja valitse komento</string>
+    <string name="lock_action_label">Lukitse ovet</string>
+    <string name="climate_control">Ilmastointi</string>
+    <string name="unlock_action_label">Avaa ovien lukitus</string>
+    <string name="charging_cable">AC-latauskaapeli</string>
+    <string name="start_charging_80">Aloita lataus 80%</string>
+    <string name="start_charging_100">Aloita lataus 100%</string>
+    <string name="unlock">Avaa</string>
+    <string name="unlock_lock_doors">Lukitse/avaa ovet</string>
+    <string name="lock">Lukitse</string>
+    <string name="unlock_doors">Avaa auton lukitus</string>
+    <string name="lock_doors">Sulje auton lukitus</string>
+    <string name="horn_light_action_label">Äänimerkki ja valot</string>
+    <string name="car_already_charging">Lataus on jo käynnissä!</string>
+    <string name="cannot_start_charging">Ei voida aloittaa latausta</string>
+    <string name="unavailable">Ei saatavilla</string>
 </resources>

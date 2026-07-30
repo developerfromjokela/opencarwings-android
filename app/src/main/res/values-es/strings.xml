@@ -133,4 +133,19 @@
     <string name="no_timers">No se han añadido temporizadores</string>
     <string name="list_empty">La lista está vacía</string>
     <string name="select_command">Por favor, seleccione un comando</string>
+    <string name="lock_action_label">Cierren las puertas</string>
+    <string name="climate_control">Climatización</string>
+    <string name="unlock_action_label">Desbloquear puertas</string>
+    <string name="charging_cable">Cable de carga de CA</string>
+    <string name="start_charging_80">Iniciar carga hasta el 80%</string>
+    <string name="start_charging_100">Iniciar carga hasta el 100%</string>
+    <string name="unlock">Desbloquear</string>
+    <string name="unlock_lock_doors">Bloquear/Desbloquear puertas</string>
+    <string name="lock">Bloquear</string>
+    <string name="unlock_doors">Desbloquear coche</string>
+    <string name="lock_doors">Bloquear coche</string>
+    <string name="horn_light_action_label">Bocina y luces</string>
+    <string name="car_already_charging">¡El coche ya se está cargando!</string>
+    <string name="cannot_start_charging">No se puede iniciar la carga</string>
+    <string name="unavailable">No disponible</string>
 </resources>

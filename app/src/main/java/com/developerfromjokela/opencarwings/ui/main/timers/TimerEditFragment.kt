@@ -218,27 +218,33 @@ class TimerEditFragment : Fragment() {
             }
         }
 
-
-        val newTimer = timer ?: CommandTimerSetting(name = binding.timerName.text?.toString() ?: "", time = CustomDateUtils.formatToUTCTimerTime(timeSelection) ?: "")
-
-        newTimer.id = timer?.id
-        newTimer.time = CustomDateUtils.formatToUTCTimerTime(timeSelection) ?: ""
-        newTimer.timerType = binding.timerModeTabs.selectedTabPosition
-        newTimer.name = binding.timerName.text?.toString() ?: ""
-        if (newTimer.timerType == 0)
-            newTimer.date = dateSelection
-        else {
-            newTimer.weekdayMon = binding.timerMon.isChecked
-            newTimer.weekdayTue = binding.timerTue.isChecked
-            newTimer.weekdayWed = binding.timerWed.isChecked
-            newTimer.weekdayThu = binding.timerThu.isChecked
-            newTimer.weekdayFri = binding.timerFri.isChecked
-            newTimer.weekdaySat = binding.timerSat.isChecked
-            newTimer.weekdaySun = binding.timerSun.isChecked
+        if (binding.timerModeTabs.selectedTabPosition != 0) {
+            dateSelection = null;
+        } else {
+            binding.timerMon.isChecked = false
+            binding.timerTue.isChecked = false
+            binding.timerWed.isChecked = false
+            binding.timerThu.isChecked = false
+            binding.timerFri.isChecked = false
+            binding.timerSat.isChecked = false
+            binding.timerSun.isChecked = false
         }
 
-        newTimer.commandType = commandType
-        newTimer.enabled = binding.timerEnabled.isChecked
+        val newTimer = timer ?: CommandTimerSetting(
+            name = binding.timerName.text?.toString() ?: "",
+            time = CustomDateUtils.formatToUTCTimerTime(timeSelection) ?: "",
+            timerType = binding.timerModeTabs.selectedTabPosition,
+            commandType = commandType,
+            enabled = binding.timerEnabled.isChecked,
+            date = dateSelection,
+            weekdayMon = binding.timerMon.isChecked,
+            weekdayTue = binding.timerTue.isChecked,
+            weekdayWed = binding.timerWed.isChecked,
+            weekdayThu = binding.timerThu.isChecked,
+            weekdayFri = binding.timerFri.isChecked,
+            weekdaySat = binding.timerSat.isChecked,
+            weekdaySun = binding.timerSun.isChecked
+        )
 
         println(newTimer)
 

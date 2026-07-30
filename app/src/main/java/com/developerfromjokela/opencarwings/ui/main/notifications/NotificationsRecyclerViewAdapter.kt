@@ -1,21 +1,19 @@
 package com.developerfromjokela.opencarwings.ui.main.notifications
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.developerfromjokela.opencarwings.R
+import androidx.recyclerview.widget.RecyclerView
 import com.developerfromjokela.opencarwings.databinding.FragmentNotificationItemBinding
-import com.developerfromjokela.opencarwings.databinding.FragmentTcuSettingBinding
-import org.openapitools.client.models.AlertHistory
+import org.openapitools.client.models.AlertHistoryFull
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 
 class NotificationsRecyclerViewAdapter(
-    private val values: MutableList<AlertHistory>
+    private val values: MutableList<AlertHistoryFull>
 ) : RecyclerView.Adapter<NotificationsRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

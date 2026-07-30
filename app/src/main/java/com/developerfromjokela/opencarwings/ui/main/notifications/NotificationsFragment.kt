@@ -18,11 +18,11 @@ import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
 import com.squareup.moshi.JsonAdapter
-import org.openapitools.client.models.AlertHistory
+import org.openapitools.client.models.AlertHistoryFull
 
 class NotificationsFragment : Fragment() {
 
-    private var notifications: MutableList<AlertHistory> = mutableListOf()
+    private var notifications: MutableList<AlertHistoryFull> = mutableListOf()
     private var serverReceiver: BroadcastReceiver? = null
     private lateinit var notificationsAdapter: NotificationsRecyclerViewAdapter
 
@@ -63,7 +63,7 @@ class NotificationsFragment : Fragment() {
                         when (intent.getStringExtra("type")) {
                             "alert" -> {
                                 intent.getStringExtra("alert")?.let { alertStr ->
-                                    WSClient.moshi.adapter(AlertHistory::class.java)
+                                    WSClient.moshi.adapter(AlertHistoryFull::class.java)
                                         .fromJson(
                                             alertStr
                                         )?.let {
@@ -114,7 +114,7 @@ class NotificationsFragment : Fragment() {
 
 
         @JvmStatic
-        fun newInstance(alertHistory: List<AlertHistory>) =
+        fun newInstance(alertHistory: List<AlertHistoryFull>) =
             NotificationsFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_NOTIFICATIONS, WSClient.moshi.adapter(NotificationsListWrapper::class.java).toJson(NotificationsListWrapper(alertHistory)))

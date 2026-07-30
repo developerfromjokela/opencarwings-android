@@ -128,12 +128,11 @@ class SendToCarViewModel(application: OpenCARWINGS, private val preferencesHelpe
                     lat = location.latitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN),
                     lon = location.longitude.toBigDecimal().setScale(10, RoundingMode.HALF_EVEN)
                 )
-                val car = CarUpdating(sendToCarLocation = location)
-                car.sendToCarLocation = location
 
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 withContext(Dispatchers.IO) {
-                    CarsApi().apiCarPartialUpdate(preferencesHelper.activeCarVin!!, car)
+                    CarsApi().apiCarPartialUpdate(preferencesHelper.activeCarVin!!,
+                        CarUpdating(sendToCarLocation = location))
                 }
 
                 _uiState.value = _uiState.value?.copy(

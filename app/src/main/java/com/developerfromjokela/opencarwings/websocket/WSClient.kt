@@ -20,7 +20,7 @@ import org.openapitools.client.infrastructure.LocalDateTimeAdapter
 import org.openapitools.client.infrastructure.OffsetDateTimeAdapter
 import org.openapitools.client.infrastructure.URIAdapter
 import org.openapitools.client.infrastructure.UUIDAdapter
-import org.openapitools.client.models.AlertHistory
+import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.Car
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -39,7 +39,7 @@ sealed class WSClientEvent {
     data class ClientError(val error: String?) : WSClientEvent()
 
     @JsonClass(generateAdapter = true)
-    data class Alert(val alert: AlertHistory) : WSClientEvent()
+    data class Alert(val alert: AlertHistoryFull) : WSClientEvent()
 
     @JsonClass(generateAdapter = true)
     object ServerAck : WSClientEvent()
@@ -57,7 +57,7 @@ data class BasePayload(
 @JsonClass(generateAdapter = true)
 data class AlertPayload(
     @Json(name = "type") val type: String,
-    @Json(name = "data") val data: AlertHistory
+    @Json(name = "data") val data: AlertHistoryFull
 )
 
 @JsonClass(generateAdapter = true)

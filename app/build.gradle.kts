@@ -5,6 +5,23 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.openapi.generator")
+}
+
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set("$rootDir/specs/opencarwings.json")
+    outputDir.set("$buildDir/generated")
+    apiPackage.set("org.openapitools.client.apis")
+    invokerPackage.set("org.openapitools.client.invoker")
+    modelPackage.set("org.openapitools.client.models")
+    generateApiTests.set(false)
+    generateModelTests.set(false)
+    typeMappings.set(
+        mapOf(
+            "dateLibrary" to "java8"
+        )
+    )
 }
 
 android {
@@ -15,8 +32,8 @@ android {
         applicationId = "com.developerfromjokela.opencarwings"
         minSdk = 24
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.2"
+        versionCode = 9
+        versionName = "1.0.3"
 
         multiDexEnabled = true
 
@@ -56,6 +73,13 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    kotlin.sourceSets["main"].kotlin {
+        srcDir("$buildDir/generated/src/main/kotlin")
+    }
+    tasks.named("preBuild") {
+        dependsOn(tasks.named("openApiGenerate"))
+    }
 }
 
 dependencies {
@@ -89,6 +113,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:25.0.1")
     implementation("com.google.android.libraries.places:places:4.4.1")
     implementation("androidx.activity:activity:1.11.0")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")

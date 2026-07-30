@@ -2,16 +2,14 @@ package com.developerfromjokela.opencarwings
 
 import android.app.Application
 import android.content.Intent
-import android.util.Log
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClient.Companion.moshi
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
 import com.google.android.gms.maps.MapsInitializer
-import com.google.android.material.color.DynamicColors
 import com.google.firebase.FirebaseApp
 import org.openapitools.client.infrastructure.ApiClient
-import org.openapitools.client.models.AlertHistory
+import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.Car
 
 class OpenCARWINGS: Application() {
@@ -36,7 +34,7 @@ class OpenCARWINGS: Application() {
                 when (event) {
                     is WSClientEvent.Alert -> {
                         broadcastIntent.putExtra("type", "alert")
-                        broadcastIntent.putExtra("alert", moshi.adapter(AlertHistory::class.java).toJson(event.alert))
+                        broadcastIntent.putExtra("alert", moshi.adapter(AlertHistoryFull::class.java).toJson(event.alert))
                     }
                     is WSClientEvent.ClientError -> {
                         broadcastIntent.putExtra("type", "clientError")

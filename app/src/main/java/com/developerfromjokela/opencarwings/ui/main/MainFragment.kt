@@ -6,8 +6,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
@@ -57,7 +59,6 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
-import org.openapitools.client.models.AlertHistory
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.CarSerializerList
 import org.openapitools.client.models.EVInfo
@@ -65,8 +66,14 @@ import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.TCUConfiguration
 import androidx.core.net.toUri
 import com.developerfromjokela.opencarwings.BuildConfig
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.QuickActionsAdapter
 import com.developerfromjokela.opencarwings.ui.main.timers.TimersFragment.Companion.ARG_TIMERS
 import com.developerfromjokela.opencarwings.ui.main.timers.TimersListWrapper
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
+import org.openapitools.client.models.AlertHistoryFull
 
 class MainFragment : Fragment() {
 
@@ -192,8 +199,18 @@ class MainFragment : Fragment() {
             viewModel.onRefresh()
         }
 
+        // Quick actions
+
+        val quickActionsRecyclerView = binding.quickActonBar
+        val quickActionsManager = FlexboxLayoutManager(requireContext())
+        var quickActionsAdapter = QuickActionsAdapter(context, { _ -> })
+        quickActionsManager.flexDirection = FlexDirection.ROW
+        quickActionsManager.justifyContent = JustifyContent.SPACE_EVENLY
+        quickActionsRecyclerView.layoutManager = quickActionsManager
+        quickActionsRecyclerView.adapter = quickActionsAdapter
+
         // Action buttons
-        binding.chgActionButton.setOnClickListener {
+        /*binding.chgActionButton.setOnClickListener {
             MaterialAlertDialogBuilder(it.context)
                 .setNegativeButton(android.R.string.cancel) { dlg, _ ->
                     dlg.cancel()
@@ -216,7 +233,7 @@ class MainFragment : Fragment() {
                 }
                 .setTitle(if(viewModel.uiState.value?.isAcOn == true)  R.string.ac_off_confirm_dialog_title else R.string.ac_on_confirm_dialog_title)
                 .setMessage(R.string.are_you_sure).show()
-        }
+        }*/
 
         // Observe UI state
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
@@ -271,6 +288,8 @@ class MainFragment : Fragment() {
             binding.carStatus.setText(state.carStatus)
             var layers = emptyList<Drawable>()
 
+            val isZE1 = state.car?.color?.value?.startsWith("l2_") == true
+
             state.carImageResId?.let {
                 ContextCompat.getDrawable(requireContext(), it)?.let {
                     layers += it
@@ -278,30 +297,30 @@ class MainFragment : Fragment() {
             }
 
             if (state.isRunning) {
-                ContextCompat.getDrawable(requireContext(), R.drawable.l_hd)?.let {
+                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_hd else R.drawable.l_hd)?.let {
                     layers += it
                 }
             }
 
             if (state.isPluggedIn || state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), R.drawable.l_cp)?.let {
+                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_cp else R.drawable.l_cp)?.let {
                     layers += it
                 }
                 if (!state.isCharging && !state.isQuickCharging) {
-                    ContextCompat.getDrawable(requireContext(), R.drawable.l_cw)?.let {
+                    ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_cw else R.drawable.l_cw)?.let {
                         layers += it
                     }
                 }
             }
 
             if (state.isCharging && !state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), R.drawable.l_chg)?.let {
+                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_chg else R.drawable.l_chg)?.let {
                     layers += it
                 }
             }
 
             if (state.isCharging && state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), R.drawable.l_q_chg)?.let {
+                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_q_chg else R.drawable.l_q_chg)?.let {
                     layers += it
                 }
             }
@@ -309,7 +328,9 @@ class MainFragment : Fragment() {
             if (state.carGear != 0) {
                 var animId = R.drawable.l_tireanim;
                 if (state.car?.color?.value?.startsWith("env200") == true)
-                    animId = R.drawable.env200_tireanim;
+                    animId = R.drawable.env200_tireanim
+                if (state.car?.color?.value?.startsWith("l2_") == true)
+                    animId = R.drawable.ze1_tireanim
                 val anim =
                     ContextCompat.getDrawable(requireContext(), animId) as AnimationDrawable
                 layers += anim
@@ -322,22 +343,6 @@ class MainFragment : Fragment() {
             binding.rangeAcOff.text = state.rangeAcOff
             binding.leafSegment.setActiveSegments(state.activeSegments)
             binding.leafSegment.setCharging(state.isCharging, state.isQuickCharging)
-            binding.chgActionButton.isEnabled = !state.isCommandExecuting
-            binding.acActionButton.isEnabled = !state.isCommandExecuting
-            binding.chgActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
-                com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
-            binding.chgActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isCharging && !state.isQuickCharging)
-                com.google.android.material.R.attr.colorOnSecondaryContainer else com.google.android.material.R.attr.colorPrimaryInverse))
-            binding.acActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)
-                com.google.android.material.R.attr.colorSurfaceContainerLow else androidx.appcompat.R.attr.colorPrimary))
-            binding.acActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isAcOn)
-                com.google.android.material.R.attr.colorOnSecondaryContainer else com.google.android.material.R.attr.colorPrimaryInverse))
-            binding.plugActionButton.backgroundTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isPlugActionEnabled)
-                com.google.android.material.R.attr.colorSurfaceContainerLow else com.google.android.material.R.attr.colorPrimaryContainer))
-            binding.plugActionButton.imageTintList = ColorStateList.valueOf(getColorFromAttr(if (!state.isPlugActionEnabled)
-                com.google.android.material.R.attr.colorOnSecondaryContainer else androidx.appcompat.R.attr.colorPrimary))
-            binding.chgActionProgress.visibility = if (state.isChgActionInProgress) View.VISIBLE else View.INVISIBLE
-            binding.acActionProgress.visibility = if (state.isAcActionInProgress) View.VISIBLE else View.INVISIBLE
             binding.carModel.text = state.carModel
             binding.carInformation.text = state.vin
             binding.tcuId.text = "TCU ID: ${state.tcuId}"
@@ -351,6 +356,8 @@ class MainFragment : Fragment() {
             binding.mainOperatorName.text = state.carrier
             binding.mainSignal.setImageResource(state.signalDrawable ?: R.drawable.signal_0)
             (binding.menuItems.adapter as HomeTabsAdapter).updateItems(state.menuItems)
+            (binding.quickActonBar.adapter as QuickActionsAdapter).setCarData(state.car)
+            (binding.quickActonBar.adapter as QuickActionsAdapter).updateItems(state.quickActions)
             state.genericError?.let {
                 context?.let {ctx ->
                     MaterialAlertDialogBuilder(ctx)
@@ -423,7 +430,7 @@ class MainFragment : Fragment() {
                     }
                 }
                 is WSClientEvent.Alert -> {
-                    val list: MutableList<AlertHistory> = viewModel.notificationsState.value?.toMutableList() ?: mutableListOf()
+                    val list: MutableList<AlertHistoryFull> = viewModel.notificationsState.value?.toMutableList() ?: mutableListOf()
                     list.add(0, it.alert)
                     viewModel.notificationsState.value = list
                     showTopSnackAlert(if (it.alert.car != null) "${it.alert.car.nickname ?: it.alert.car.vin}: ${it.alert.typeDisplay}" else it.alert.typeDisplay, it.alert.additionalData)
@@ -506,7 +513,7 @@ class MainFragment : Fragment() {
                             "alert" -> {
                                 onServerEvent(
                                     intent.getStringExtra("alert")?.let { alertStr ->
-                                        WSClient.moshi.adapter(AlertHistory::class.java)
+                                        WSClient.moshi.adapter(AlertHistoryFull::class.java)
                                             .fromJson(
                                                 alertStr
                                             )?.let {

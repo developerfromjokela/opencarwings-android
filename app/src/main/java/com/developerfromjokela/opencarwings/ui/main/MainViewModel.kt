@@ -15,6 +15,13 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.ChargingQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.ClimateQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.HornLightQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.PlugQuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.QuickAction
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.UnlockQuickAction
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
@@ -27,7 +34,7 @@ import org.openapitools.client.apis.TokenApi
 import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.models.AlertHistory
+import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.ApiCommandCreateRequest
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.CarSerializerList
@@ -77,6 +84,7 @@ data class CarUiState(
     val isAcActionInProgress: Boolean = false,
     val isPlugActionEnabled: Boolean = false,
     val menuItems: List<MenuItem> = emptyList(),
+    val quickActions: List<QuickAction> = emptyList(),
     val genericError: Int? = null,
     val error: String? = null,
     val fatalError: Boolean = false,
@@ -93,7 +101,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
     private val _uiState = MutableLiveData<CarUiState>()
     private val _carsState = MutableLiveData<List<CarSerializerList>>()
-    val notificationsState = MutableLiveData<List<AlertHistory>>()
+    val notificationsState = MutableLiveData<List<AlertHistoryFull>>()
     val firstSocketConnection = MutableLiveData<Boolean>()
     val uiState: LiveData<CarUiState> get() = _uiState
 
@@ -510,6 +518,11 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             "l_pearlwhite" -> R.drawable.l_pearlwhite
             "l_planetblue" -> R.drawable.l_planetblue
             "l_superblack" -> R.drawable.l_superblack
+            "l2_pearlwhite" -> R.drawable.l2_pearlwhite
+            "l2_gunmetallic" -> R.drawable.l2_gunmetallic
+            "l2_jadefrostmetallic" -> R.drawable.l2_jadefrostmetallic
+            "l2_superblack" -> R.drawable.l2_superblack
+            "l2_vividblue" -> R.drawable.l2_vividblue
             "env200_white" -> R.drawable.env200_white
             else -> null
         }
@@ -536,6 +549,12 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         if (car.vehicleCode1 == 92 || car.vehicleCode1 == 146) {
             carGeneration = "AZE0"
         }
+
+        if (car.tcuVer == "TCU032")
+            carGeneration = "AZE0 (2016-17)"
+
+        if (car.tcuVer == "TCU033")
+            carGeneration = "ZE1"
 
         val signalDrawable = when (car.signalLevel) {
             1 -> R.drawable.signal_1
@@ -582,6 +601,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             isAcActionInProgress = car.commandRequested == true && (car.commandType == 3 || car.commandType == 4),
             isPlugActionEnabled = evInfo.pluggedIn ?: false,
             menuItems = getMenuItems(car),
+            quickActions = getQuickActions(car),
             error = null
         )
     }
@@ -601,13 +621,39 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         } catch (ignored: IOException) {
             ignored.printStackTrace()
         }
-        return listOf(
+        val list = mutableListOf(
             MenuItem(1, R.string.ev_info, null, R.drawable.ic_ev_info),
             MenuItem(2, R.string.location, geocodedLocation, R.drawable.ic_location),
             MenuItem(5, R.string.timers, if (car.timerCommands.any { it.enabled == true }) application.getString(R.string.timers_active, car.timerCommands.filter { it.enabled == true }.size) else null , R.drawable.ic_timers),
             MenuItem(3, R.string.notifications, null, R.drawable.ic_notifications),
-            MenuItem(4, R.string.tcu_settings, null, R.drawable.ic_settings)
         )
+        if (car.supportedCommands?.contains(5) == true)
+            list += MenuItem(4, R.string.tcu_settings, null, R.drawable.ic_settings)
+        return list
+    }
+
+    private fun sendCommand(commandId: Int): Boolean {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value?.copy(isAcActionInProgress = true)
+            sendTCUCommand(ApiCommandCreateRequest(BigDecimal(commandId)))
+        }
+        return true
+    }
+
+    private fun getQuickActions(car: Car): List<QuickAction> {
+        val list = mutableListOf<QuickAction>()
+        if (car.supportedCommands?.contains(7) == true)
+            list.add(UnlockQuickAction({ id: Int -> sendCommand(id)}))
+        if (car.supportedCommands?.contains(8) == true)
+            list.add(LockQuickAction({id: Int -> sendCommand(id)}))
+        if (car.supportedCommands?.contains(2) == true)
+            list.add(ChargingQuickAction({ id: Int -> sendCommand(id)}))
+        list.add(PlugQuickAction({ id: Int -> sendCommand(id)}))
+        if (car.supportedCommands?.contains(3) == true)
+            list.add(ClimateQuickAction({ id: Int -> sendCommand(id)}))
+        if (car.supportedCommands?.contains(11) == true)
+            list.add(HornLightQuickAction({ id: Int -> sendCommand(id)}))
+        return list
     }
 
 }

@@ -3,8 +3,8 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Allow HTTP server URL</li>
-            <li>Add TCU Cellular Signal and network provider name</li>
+            <li>Add support for new commands</li>
+            <li>Add ZE1 visualizations</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -133,4 +133,19 @@
     <string name="no_timers">No timers added</string>
     <string name="list_empty">The list is empty</string>
     <string name="select_command">Please choose a command</string>
+    <string name="lock_action_label">Lock doors</string>
+    <string name="climate_control">Climate Control</string>
+    <string name="unlock_action_label">Unlock doors</string>
+    <string name="charging_cable">AC Charging Cable</string>
+    <string name="start_charging_80">Start charging to 80%</string>
+    <string name="start_charging_100">Start charging to 100%</string>
+    <string name="unlock">Unlock</string>
+    <string name="unlock_lock_doors">Lock/Unlock Doors</string>
+    <string name="lock">Lock</string>
+    <string name="unlock_doors">Unlock Car</string>
+    <string name="lock_doors">Lock Car</string>
+    <string name="horn_light_action_label"><![CDATA[Horn & Lights]]></string>
+    <string name="car_already_charging">Car already charging!</string>
+    <string name="cannot_start_charging">Cannot start charging</string>
+    <string name="unavailable">Unavailable</string>
 </resources>

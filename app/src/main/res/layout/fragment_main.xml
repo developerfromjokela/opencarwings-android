@@ -177,101 +177,18 @@
 
                     </com.developerfromjokela.opencarwings.ui.elements.LeafSegmentDisplay>
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/plug_quick_action_root"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/quickActonBar"
+                        android:gravity="center"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="12sp"
+                        android:layout_marginEnd="12sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/leaf_segment">
+                        app:layout_constraintTop_toBottomOf="@+id/leaf_segment" />
 
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/chg_action_progress"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_margin="3dp"
-                            android:elevation="10dp"
-                            android:indeterminate="true"
-                            android:visibility="invisible"
-                            app:indicatorSize="48dp"
-                            app:layout_constraintBottom_toBottomOf="@+id/chg_action_button"
-                            app:layout_constraintEnd_toEndOf="@+id/chg_action_button"
-                            app:layout_constraintStart_toStartOf="@+id/chg_action_button"
-                            app:layout_constraintTop_toTopOf="@+id/chg_action_button"
-                            tools:visibility="visible" />
-
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/chg_action_button"
-                            style="@style/ThemeOverlay.Material3.FloatingActionButton.Secondary"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_marginEnd="16dp"
-                            android:clickable="true"
-                            android:enabled="true"
-                            android:focusable="true"
-                            android:src="@drawable/ic_charge"
-                            app:fabCustomSize="50dp"
-                            app:fabSize="normal"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/plug_action_button"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:maxImageSize="30dp"
-                            app:useCompatPadding="false" />
-
-                        <com.google.android.material.progressindicator.CircularProgressIndicator
-                            android:id="@+id/ac_action_progress"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_margin="3dp"
-                            android:elevation="10dp"
-                            android:indeterminate="true"
-                            android:visibility="invisible"
-                            app:indicatorSize="48dp"
-                            app:layout_constraintBottom_toBottomOf="@+id/ac_action_button"
-                            app:layout_constraintEnd_toEndOf="@+id/ac_action_button"
-                            app:layout_constraintStart_toStartOf="@+id/ac_action_button"
-                            app:layout_constraintTop_toTopOf="@+id/ac_action_button"
-                            tools:visibility="visible" />
-
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/ac_action_button"
-                            style="@style/ThemeOverlay.Material3.FloatingActionButton.Secondary"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_marginStart="16dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:src="@drawable/ic_ac"
-                            app:fabCustomSize="50dp"
-                            app:fabSize="normal"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/plug_action_button"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:maxImageSize="30dp"
-                            app:useCompatPadding="false" />
-
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/plug_action_button"
-                            style="@style/ThemeOverlay.Material3.FloatingActionButton.Secondary"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:clickable="false"
-                            android:enabled="true"
-                            android:focusable="false"
-                            android:src="@drawable/ic_plug"
-                            app:fabCustomSize="50dp"
-                            app:fabSize="normal"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:maxImageSize="30dp"
-                            app:useCompatPadding="false" />
-
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

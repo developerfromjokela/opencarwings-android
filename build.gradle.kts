@@ -6,4 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
     id("com.google.gms.google-services") version "4.4.3" apply false
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
+    id("org.openapi.generator") version "7.24.0" apply false
+
 }

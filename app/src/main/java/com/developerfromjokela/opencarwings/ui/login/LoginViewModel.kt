@@ -86,7 +86,7 @@ class LoginViewModel : ViewModel() {
                     ))
                     GlobalScope.launch {
                         withContext(Dispatchers.Main) {
-                            _loginResult.value = LoginResult(true, response = token)
+                            _loginResult.value = LoginResult(true, response = TokenRefresh(token.refresh, token.access))
                         }
                     }
                 } catch (e: ClientException) {
