@@ -145,7 +145,7 @@ class LocationFragment : Fragment() {
         if (usingGMS) {
             view.findViewById<View>(R.id.map).visibility = View.VISIBLE
             view.findViewById<View>(R.id.mapLibre).visibility = View.GONE
-            Places.initialize(requireContext().applicationContext, "")
+            Places.initialize(requireContext().applicationContext, googleApiKey)
             val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
             mapFragment?.getMapAsync(callback)
         } else {
