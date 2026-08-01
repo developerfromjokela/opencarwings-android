@@ -32,8 +32,8 @@ android {
         applicationId = "com.developerfromjokela.opencarwings"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.0.3"
+        versionCode = 10
+        versionName = "1.0.4"
 
         multiDexEnabled = true
 
@@ -114,6 +114,7 @@ dependencies {
     implementation("com.google.android.libraries.places:places:4.4.1")
     implementation("androidx.activity:activity:1.11.0")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("org.maplibre.gl:android-sdk:13.4.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")

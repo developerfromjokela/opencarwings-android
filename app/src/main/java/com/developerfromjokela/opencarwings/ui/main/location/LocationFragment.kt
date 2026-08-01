@@ -37,6 +37,9 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.maplibre.android.annotations.IconFactory
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.LocationInfo
 import java.time.ZoneId
@@ -45,6 +48,32 @@ import java.time.format.FormatStyle
 
 class LocationFragment : Fragment() {
 
+    private final val googleApiKey: String = ""
+    private final val osmRasterStyle = """
+    {
+      "version": 8,
+      "sources": {
+        "osm-tiles": {
+          "type": "raster",
+          "tiles": [
+            "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          ],
+          "tileSize": 256,
+          "attribution": "© OpenStreetMap contributors"
+        }
+      },
+      "layers": [
+        {
+          "id": "osm-tiles-layer",
+          "type": "raster",
+          "source": "osm-tiles",
+          "minzoom": 0,
+          "maxzoom": 19
+        }
+      ]
+    }
+    """.trimIndent()
+
     private var serverReceiver: BroadcastReceiver? = null
 
     private var googleMap: GoogleMap? = null
@@ -52,6 +81,10 @@ class LocationFragment : Fragment() {
     private lateinit var viewModel: LocationInfoViewModel
 
     private var loadingDialog: AlertDialog? = null
+
+    private var mapView: MapView? = null
+
+    private var usingGMS = false
 
 
     private val callback = OnMapReadyCallback { googleMap ->
@@ -101,12 +134,30 @@ class LocationFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_location, container, false)
     }
 
+    private fun isGmsAvailable(context: Context): Boolean = try {
+        context.packageManager.getApplicationInfo("com.google.android.gms", 0).enabled
+    } catch (e: Exception) { false }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Places.initialize(requireContext().applicationContext, "")
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(callback)
-        val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
+        usingGMS = isGmsAvailable(requireContext()) && googleApiKey.isNotEmpty()
+
+        if (usingGMS) {
+            view.findViewById<View>(R.id.map).visibility = View.VISIBLE
+            view.findViewById<View>(R.id.mapLibre).visibility = View.GONE
+            Places.initialize(requireContext().applicationContext, "")
+            val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+            mapFragment?.getMapAsync(callback)
+        } else {
+            view.findViewById<View>(R.id.map).visibility = View.GONE
+            view.findViewById<View>(R.id.mapLibre).visibility = View.VISIBLE
+            mapView = view.findViewById(R.id.mapLibre)
+
+            mapView?.getMapAsync { map ->
+                map.setStyle(Style.Builder().fromJson(osmRasterStyle))
+            }
+        }
+
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -116,6 +167,7 @@ class LocationFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: android.view.MenuItem): Boolean {
                 when(menuItem.itemId) {
                     R.id.search -> {
+                        val fields = listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG)
                         val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
                             .build(requireContext())
                         startAutocomplete.launch(intent)
@@ -177,6 +229,26 @@ class LocationFragment : Fragment() {
     }
 
     private fun updateLocationPin() {
+        if (mapView != null && viewModel.uiState.value?.locationInfo != null) {
+            val locationInfo = viewModel.uiState.value!!.locationInfo;
+            val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+            val lastUpdated = locationInfo!!.lastUpdated?.atZoneSameInstant(ZoneId.systemDefault())
+                ?.toLocalDateTime()?.format(dateFormatter)
+                ?: "---"
+            val sydney = org.maplibre.android.geometry.LatLng(locationInfo!!.lat?.toDouble() ?: 0.0, locationInfo!!.lon?.toDouble() ?: 0.0)
+            val markerOpts = org.maplibre.android.annotations.MarkerOptions().position(sydney).title((if (locationInfo?.home == true) getString(R.string.at_home)+", " else "")+getString(R.string.last_updated_format, lastUpdated))
+            mapView?.getMapAsync { map ->
+                map.clear()
+                map.addMarker(markerOpts)
+                if (locationInfo!!.home == true) {
+                    val icon = IconFactory.getInstance(requireContext()).fromResource(R.drawable.ic_car_home)
+                    markerOpts.icon(icon)
+                    map.addMarker(markerOpts)
+                }
+                map.moveCamera(org.maplibre.android.camera.CameraUpdateFactory.newLatLngZoom(sydney, 15.0))
+            }
+            return
+        }
         if (googleMap != null && viewModel.uiState.value?.locationInfo != null) {
             val locationInfo = viewModel.uiState.value!!.locationInfo;
             val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);

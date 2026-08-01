@@ -373,7 +373,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         }
     }
 
-    public fun fetchInitialData() {
+    public fun fetchInitialData(returningAfter404: Boolean = false) {
         firstSocketConnection.value = false
         viewModelScope.launch {
             try {
@@ -417,10 +417,15 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 updateUiState(selectedCar)
 
                 // Start up websocket
-                WSClient.getInstance().configure(preferencesHelper.server?.replace("https://", "wss://")?.replace("http://", "ws://")+"/ws/notif/", preferencesHelper.accessToken ?: "")
-                WSClient.getInstance().connect()
+                if (!WSClient.getInstance().isConnected()) {
+                    WSClient.getInstance().configure(preferencesHelper.server?.replace("https://", "wss://")?.replace("http://", "ws://")+"/ws/notif/", preferencesHelper.accessToken ?: "")
+                    WSClient.getInstance().connect()
+                }
             } catch (e: ClientException) {
-                if (e.statusCode != 401 && e.statusCode != 403) {
+                if (e.statusCode == 404 && !returningAfter404) {
+                    preferencesHelper.activeCarVin = _carsState.value?.first()?.vin
+                    fetchInitialData(true)
+                } else if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,

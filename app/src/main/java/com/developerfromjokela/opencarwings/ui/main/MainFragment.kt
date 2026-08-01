@@ -209,31 +209,7 @@ class MainFragment : Fragment() {
         quickActionsRecyclerView.layoutManager = quickActionsManager
         quickActionsRecyclerView.adapter = quickActionsAdapter
 
-        // Action buttons
-        /*binding.chgActionButton.setOnClickListener {
-            MaterialAlertDialogBuilder(it.context)
-                .setNegativeButton(android.R.string.cancel) { dlg, _ ->
-                    dlg.cancel()
-                }
-                .setPositiveButton(R.string.start_charging) { dlg, _ ->
-                    dlg.cancel()
-                    viewModel.onChargeAction()
-                }
-                .setTitle(R.string.start_charging)
-                .setMessage(R.string.are_you_sure).show()
-        }
-        binding.acActionButton.setOnClickListener {
-            MaterialAlertDialogBuilder(it.context)
-                .setNegativeButton(android.R.string.cancel) { dlg, _ ->
-                    dlg.cancel()
-                }
-                .setPositiveButton(if(viewModel.uiState.value?.isAcOn == true)  R.string.stop else R.string.start) { dlg, _ ->
-                    dlg.cancel()
-                    viewModel.onAcAction()
-                }
-                .setTitle(if(viewModel.uiState.value?.isAcOn == true)  R.string.ac_off_confirm_dialog_title else R.string.ac_on_confirm_dialog_title)
-                .setMessage(R.string.are_you_sure).show()
-        }*/
+
 
         // Observe UI state
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
@@ -330,7 +306,7 @@ class MainFragment : Fragment() {
                 if (state.car?.color?.value?.startsWith("env200") == true)
                     animId = R.drawable.env200_tireanim
                 if (state.car?.color?.value?.startsWith("l2_") == true)
-                    animId = R.drawable.ze1_tireanim
+                    animId = R.drawable.l2_tireanim
                 val anim =
                     ContextCompat.getDrawable(requireContext(), animId) as AnimationDrawable
                 layers += anim

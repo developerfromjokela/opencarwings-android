@@ -25,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import com.developerfromjokela.opencarwings.utils.UpdateUtils.isAppUpToDate
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import org.maplibre.android.MapLibre
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val toolbar: MaterialToolbar = findViewById(R.id.materialToolbar);
         setSupportActionBar(toolbar)
-
+        MapLibre.getInstance(this)
         val abc = AppBarConfiguration.Builder(R.id.mainFragment, R.id.loginFragment).build();
         val navHostFragment = supportFragmentManager.fragments.first() as NavHostFragment
         navController = navHostFragment.navController

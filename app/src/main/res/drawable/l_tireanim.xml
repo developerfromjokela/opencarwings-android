@@ -5,7 +5,8 @@
     <item android:drawable="@drawable/car_leaf_f3" android:duration="35" />
     <item android:drawable="@drawable/car_leaf_f2" android:duration="35" />
     <item android:drawable="@drawable/car_leaf_f1" android:duration="35" />
-    <item android:drawable="@drawable/car_leaf_f2" android:duration="35" />
-    <item android:drawable="@drawable/car_leaf_f3" android:duration="35" />
     <item android:drawable="@drawable/car_leaf_f4" android:duration="35" />
+    <item android:drawable="@drawable/car_leaf_f3" android:duration="35" />
+    <item android:drawable="@drawable/car_leaf_f2" android:duration="35" />
+    <item android:drawable="@drawable/car_leaf_f1" android:duration="35" />
 </animation-list>
