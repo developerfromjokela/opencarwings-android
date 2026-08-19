@@ -19,6 +19,7 @@ import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -153,6 +154,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        println("BACK ")
+        println(navController.currentDestination)
         if (navController.currentDestination?.id == R.id.loginFragment || navController.currentDestination?.id == R.id.mainFragment) {
             finish()
         } else if (!(navController.navigateUp() || super.onSupportNavigateUp())) {

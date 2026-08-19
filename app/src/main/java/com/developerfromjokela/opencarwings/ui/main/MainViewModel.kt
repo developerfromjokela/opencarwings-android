@@ -634,6 +634,8 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         )
         if (car.supportedCommands?.contains(5) == true)
             list += MenuItem(4, R.string.tcu_settings, null, R.drawable.ic_settings)
+        if (car.tcuType == Car.TcuType.ficosa2016)
+            list += MenuItem(6, R.string.veh_health, null, R.drawable.ic_veh_health)
         return list
     }
 

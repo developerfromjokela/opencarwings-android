@@ -68,12 +68,15 @@ import androidx.core.net.toUri
 import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAction
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.QuickActionsAdapter
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
 import com.developerfromjokela.opencarwings.ui.main.timers.TimersFragment.Companion.ARG_TIMERS
 import com.developerfromjokela.opencarwings.ui.main.timers.TimersListWrapper
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import org.openapitools.client.models.AlertHistoryFull
+import org.openapitools.client.models.VehicleHealthInfo
 
 class MainFragment : Fragment() {
 
@@ -189,6 +192,12 @@ class MainFragment : Fragment() {
                     findNavController().navigate(R.id.action_mainFragment_to_timersFragment, Bundle().apply {
                         putString(ARG_TIMERS, WSClient.moshi.adapter(TimersListWrapper::class.java).toJson(
                             TimersListWrapper(viewModel.uiState.value?.car?.timerCommands ?: emptyList())))
+                    })
+                }
+                if (item.id == 6) {
+                    findNavController().navigate(R.id.action_mainFragment_to_HealthFragment, Bundle().apply {
+                        putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(viewModel.uiState.value?.car?.vehHealth))
+                        putString(ARG_COLOR, viewModel.uiState.value?.car?.color?.value)
                     })
                 }
             }

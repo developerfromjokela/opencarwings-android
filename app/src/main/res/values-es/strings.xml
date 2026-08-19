@@ -3,8 +3,7 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Permitir URL de servidor HTTP</li>
-            <li>Agregar señal celular TCU y operador</li>
+            <li>Agregar información sobre el estado del vehículo</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>
@@ -148,4 +147,11 @@
     <string name="car_already_charging">¡El coche ya se está cargando!</string>
     <string name="cannot_start_charging">No se puede iniciar la carga</string>
     <string name="unavailable">No disponible</string>
+    <string name="dtc_codes">Códigos DTC</string>
+    <string name="maintenanceMileage">Kilometraje: %1$s</string>
+    <string name="maintenanceAlert">Intervalo de servicio: %1$s</string>
+    <string name="dtc_ecu_id">Alerta de mantenimiento: $1%s</string>
+    <string name="veh_health">Salud del vehículo</string>
+    <string name="all_good">¡Todo está bien!</string>
+    <string name="no_dtc_codes">No hay códigos DTC</string>
 </resources>

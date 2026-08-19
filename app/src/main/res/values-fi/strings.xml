@@ -4,8 +4,7 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Sallittu HTTP palvelinosoite</li>
-            <li>Lisätty TCU:n signaalitaso sekä operaattorin nimi</li>
+            <li>Lisätty auton kuntoraportti</li>
         </ul>
         ]]>
     </string>
@@ -148,4 +147,12 @@
     <string name="car_already_charging">Lataus on jo käynnissä!</string>
     <string name="cannot_start_charging">Ei voida aloittaa latausta</string>
     <string name="unavailable">Ei saatavilla</string>
+    <string name="TPMS">Rengaspaine</string>
+    <string name="dtc_codes">Vikakoodit</string>
+    <string name="maintenanceMileage">Kertyneet kilometrit: %1$s</string>
+    <string name="maintenanceAlert">Huoltoväli-ilmoitus: %1$s</string>
+    <string name="dtc_ecu_id">"Ohjausyksikkö $1%s "</string>
+    <string name="veh_health">Auton kunto</string>
+    <string name="all_good">Kaikki hyvin!</string>
+    <string name="no_dtc_codes">Ei vikakoodeja</string>
 </resources>
