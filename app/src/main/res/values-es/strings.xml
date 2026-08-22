@@ -3,7 +3,7 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Agregar información sobre el estado del vehículo</li>
+            <li>Implementar soporte de 2FA y PIN de comando sensible</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>
@@ -154,4 +154,15 @@
     <string name="veh_health">Salud del vehículo</string>
     <string name="all_good">¡Todo está bien!</string>
     <string name="no_dtc_codes">No hay códigos DTC</string>
+    <string name="otp_invalid">Código de autenticación de dos factores no válido</string>
+    <string name="enter_otp_code">Introduce el código 2FA</string>
+    <string name="otp_subtitle">Introduce el código de 6 dígitos de tu aplicación de autenticación</string>
+    <string name="command_pin_title">PIN de comando</string>
+    <string name="command_pin_subtitle">Introduce tu PIN de seguridad de 4 dígitos para comandos sensibles</string>
+    <string name="set_command_pin">Establecer código PIN</string>
+    <string name="set_command_pin_subtitle">El código PIN de 4 dígitos se utiliza para comandos sensibles, como el desbloqueo de puertas</string>
+    <string name="pin_label">PIN</string>
+    <string name="confirm_pin_label">Confirmar PIN</string>
+    <string name="otp_code">Código 2FA</string>
+    <string name="pin_mismatch">Los códigos PIN no son idénticos</string>
 </resources>

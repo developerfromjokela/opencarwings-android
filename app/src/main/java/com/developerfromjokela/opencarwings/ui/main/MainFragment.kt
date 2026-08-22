@@ -5,15 +5,13 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
 import android.util.Log
 import android.util.TypedValue
@@ -31,6 +29,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
@@ -42,40 +41,40 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.MainActivity
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentMainBinding
+import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.QuickActionsAdapter
 import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoFragment.Companion.ARG_EVINFO
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
 import com.developerfromjokela.opencarwings.ui.main.location.LocationFragment.Companion.ARG_LOCATIONINFO
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsFragment.Companion.ARG_NOTIFICATIONS
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsListWrapper
 import com.developerfromjokela.opencarwings.ui.main.tcusettings.TCUSettingsFragment.Companion.ARG_TCUCONFIG
 import com.developerfromjokela.opencarwings.ui.main.tcusettings.TCUSettingsFragment.Companion.ARG_TCUCONFIG_REFRESHING
+import com.developerfromjokela.opencarwings.ui.main.timers.TimersFragment.Companion.ARG_TIMERS
+import com.developerfromjokela.opencarwings.ui.main.timers.TimersListWrapper
+import com.developerfromjokela.opencarwings.ui.utils.CommandPinBottomSheetFragment
+import com.developerfromjokela.opencarwings.ui.utils.SetupPinBottomSheetFragment
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
+import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.CarSerializerList
 import org.openapitools.client.models.EVInfo
 import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.TCUConfiguration
-import androidx.core.net.toUri
-import com.developerfromjokela.opencarwings.BuildConfig
-import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAction
-import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.QuickActionsAdapter
-import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
-import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
-import com.developerfromjokela.opencarwings.ui.main.timers.TimersFragment.Companion.ARG_TIMERS
-import com.developerfromjokela.opencarwings.ui.main.timers.TimersListWrapper
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
-import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.VehicleHealthInfo
 
 class MainFragment : Fragment() {
@@ -126,16 +125,21 @@ class MainFragment : Fragment() {
                 when(menuItem.itemId) {
                     R.id.app_settings -> {
                         val prefUtil = PreferencesHelper(requireContext())
-                        MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.settings).setMessage(getString(R.string.settings_username, prefUtil.username)).setNegativeButton(R.string.close) {dlg, _ ->
+                        MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.settings).setMessage(getString(R.string.settings_username, viewModel.accountInfoState.value?.username ?: prefUtil.username)).setNegativeButton(R.string.close) {dlg, _ ->
                             dlg.dismiss()
                         }.setPositiveButton(R.string.sign_out) {dlg, _ ->
                             viewModel.signOut()
                             WSClient.getInstance().disconnect()
                             dlg.dismiss()
                             prefUtil.clearAll()
-                            val navBuilder = NavOptions.Builder()
-                            val navOptions: NavOptions = navBuilder.setPopUpTo(R.id.loginFragment, false).build()
-                            Navigation.findNavController(view).navigate(R.id.loginFragment, null, navOptions)
+                            Handler().postDelayed({
+                                val i: Intent = context!!.getPackageManager()
+                                    .getLaunchIntentForPackage(context!!.getPackageName())!!
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context!!.startActivity(i)
+                                System.exit(0)
+                            }, 500)
                         }.show()
                     }
                 }
@@ -218,7 +222,24 @@ class MainFragment : Fragment() {
         quickActionsRecyclerView.layoutManager = quickActionsManager
         quickActionsRecyclerView.adapter = quickActionsAdapter
 
+        childFragmentManager.setFragmentResultListener(
+            CommandPinBottomSheetFragment.REQUEST_KEY, viewLifecycleOwner
+        ) { _, bundle ->
+            val pinCode = bundle.getString(CommandPinBottomSheetFragment.BUNDLE_PIN)
+            if (!pinCode.isNullOrBlank()) {
+                viewModel.pinEntered(pinCode)
+            }
+        }
 
+
+        childFragmentManager.setFragmentResultListener(
+            SetupPinBottomSheetFragment.REQUEST_KEY, viewLifecycleOwner
+        ) { _, bundle ->
+            val pinCode = bundle.getString(CommandPinBottomSheetFragment.BUNDLE_PIN)
+            if (!pinCode.isNullOrBlank()) {
+                viewModel.pinSetupComplete(pinCode)
+            }
+        }
 
         // Observe UI state
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
@@ -227,6 +248,19 @@ class MainFragment : Fragment() {
                 val navOptions: NavOptions = navBuilder.setPopUpTo(R.id.loginFragment, false).build()
                 Navigation.findNavController(view).navigate(R.id.loginFragment, null, navOptions)
                 return@observe
+            }
+
+            if (state.showPinPrompt) {
+                if (childFragmentManager.findFragmentByTag(CommandPinBottomSheetFragment.TAG) == null) {
+                    CommandPinBottomSheetFragment().show(childFragmentManager, CommandPinBottomSheetFragment.TAG)
+                }
+            }
+
+            if (state.showSetupPinPrompt) {
+                if (childFragmentManager.findFragmentByTag(SetupPinBottomSheetFragment.TAG) == null) {
+                    SetupPinBottomSheetFragment.newInstance(otpRequired = viewModel.accountInfoState.value?.is2faEnabled == true).show(childFragmentManager,
+                        SetupPinBottomSheetFragment.TAG)
+                }
             }
 
             if (state.sendSmsToNumber != null) {

@@ -7,13 +7,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.R
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.openapitools.client.apis.TokenApi
+import org.openapitools.client.infrastructure.ClientError
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
+import org.openapitools.client.models.APIError
 import org.openapitools.client.models.JWTTokenObtainPair
 import org.openapitools.client.models.TokenRefresh
 import java.net.URL
@@ -71,8 +74,7 @@ class LoginViewModel : ViewModel() {
         return Patterns.WEB_URL.matcher(url).matches()
     }
 
-    // Simulate login process (replace with actual authentication logic)
-    fun login(username: String, password: String, serverUrl: String) {
+    fun login(username: String, password: String, serverUrl: String, otpToken: String? = null) {
         object : Thread() {
             override fun run() {
                 try {
@@ -82,7 +84,8 @@ class LoginViewModel : ViewModel() {
                         deviceOs = "Android ${Build.VERSION.RELEASE}",
                         deviceType = "fcm",
                         appVersion = BuildConfig.VERSION_NAME,
-                        pushNotificationKey = _fcmToken.value
+                        pushNotificationKey = _fcmToken.value,
+                        otpCode = otpToken
                     ))
                     GlobalScope.launch {
                         withContext(Dispatchers.Main) {
@@ -93,6 +96,16 @@ class LoginViewModel : ViewModel() {
                     GlobalScope.launch {
                         withContext(Dispatchers.Main){
                             if (e.statusCode == 401) {
+                                try {
+                                    val resp: String? = (e.response as? ClientError<APIError>)?.body as? String
+                                    if (resp != null) {
+                                        val jsonObj = Gson().fromJson(resp, APIError::class.java)
+                                        if (jsonObj.detail?.startsWith("otp_code") == true) {
+                                            _loginResult.value = LoginResult(false, R.string.otp_invalid, otpRequired = true)
+                                            return@withContext
+                                        }
+                                    }
+                                } catch (_: Exception) {}
                                 _loginResult.value = LoginResult(false, R.string.invalid_creds)
                             } else {
                                 _loginResult.value = LoginResult(false, errorString = "Client error ${e.statusCode}")
@@ -134,5 +147,6 @@ data class LoginResult(
     val success: Boolean = false,
     val error: Int? = null,
     val errorString: String? = null,
-    val response: TokenRefresh? = null
-)
+    val response: TokenRefresh? = null,
+    val otpRequired: Boolean = false,
+    )

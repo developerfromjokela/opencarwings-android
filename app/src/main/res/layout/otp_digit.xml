@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputEditText
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/digitBox"
+    android:layout_width="48dp"
+    android:layout_height="56dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/bg_otp_box"
+    android:gravity="center"
+    android:inputType="number"
+    android:maxLength="1"
+    android:textAppearance="?attr/textAppearanceHeadlineSmall"
+    android:cursorVisible="true"
+    android:importantForAutofill="no"
+    android:textCursorDrawable="@null" />

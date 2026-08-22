@@ -3,7 +3,7 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Add Vehicle Health Information</li>
+            <li>Implement 2FA support and Sensitive Command PIN</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -156,4 +156,15 @@
     <string name="veh_health">Vehicle Health</string>
     <string name="all_good">All good!</string>
     <string name="no_dtc_codes">No DTC Codes</string>
+    <string name="otp_invalid">OTP Code Invalid</string>
+    <string name="enter_otp_code">Enter 2FA Code</string>
+    <string name="otp_subtitle">Enter the 6-digit code from your authenticator app</string>
+    <string name="command_pin_title">Command PIN</string>
+    <string name="command_pin_subtitle">Enter your 4-digit security PIN for sensitive commands</string>
+    <string name="set_command_pin">Set PIN Code</string>
+    <string name="set_command_pin_subtitle">4-digit PIN Code is used for sensitive commands, like door unlock</string>
+    <string name="pin_label">PIN</string>
+    <string name="confirm_pin_label">Confirm PIN</string>
+    <string name="otp_code">2FA Code</string>
+    <string name="pin_mismatch">PIN codes are not identical!</string>
 </resources>

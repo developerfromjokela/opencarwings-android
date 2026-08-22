@@ -4,7 +4,7 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Lisätty auton kuntoraportti</li>
+            <li>Lisätty 2FA-tuki ja arkaluonteisten komentojen PIN-koodi</li>
         </ul>
         ]]>
     </string>
@@ -155,4 +155,15 @@
     <string name="veh_health">Auton kunto</string>
     <string name="all_good">Kaikki hyvin!</string>
     <string name="no_dtc_codes">Ei vikakoodeja</string>
+    <string name="otp_invalid">2FA-koodi virheellinen</string>
+    <string name="enter_otp_code">Syötä 2FA-koodi</string>
+    <string name="otp_subtitle">Syötä todennussovelluksesta saamasi 6-numeroinen koodi</string>
+    <string name="command_pin_title">Komento-PIN-koodi</string>
+    <string name="command_pin_subtitle">Syötä nelinumeroinen PIN-koodisi arkaluonteisia komentoja varten.</string>
+    <string name="set_command_pin">Aseta PIN-koodi</string>
+    <string name="set_command_pin_subtitle">4-numeroista PIN-koodia käytetään arkaluonteisiin komentoihin, kuten oven avaamiseen</string>
+    <string name="pin_label">PIN-koodi</string>
+    <string name="confirm_pin_label">Vahvista PIN-koodi</string>
+    <string name="otp_code">2FA-koodi</string>
+    <string name="pin_mismatch">PIN-koodit eivät täsmää keskenään!</string>
 </resources>

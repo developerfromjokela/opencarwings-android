@@ -99,6 +99,10 @@ class LoginFragment : Fragment() {
                 preferencesHelper.refreshToken = loginResult.response!!.refresh
                 preferencesHelper.accessToken = loginResult.response.access
                 Navigation.findNavController(view).navigate(R.id.mainFragment)
+            } else if (loginResult.otpRequired) {
+                if (childFragmentManager.findFragmentByTag(OtpBottomSheetFragment.TAG) == null) {
+                    OtpBottomSheetFragment().show(childFragmentManager, OtpBottomSheetFragment.TAG)
+                }
             } else {
                 loginResult.error?.let { showLoginFailed(it) }
                 loginResult.errorString?.let { showLoginFailedString(it) }
@@ -141,6 +145,21 @@ class LoginFragment : Fragment() {
                 passwordEditText.text.toString(),
                 if (serverPicker.text.toString() == "custom") customServerURLField.text.toString() else "https://"+serverPicker.text.toString()
             )
+        }
+
+        childFragmentManager.setFragmentResultListener(
+            OtpBottomSheetFragment.REQUEST_KEY, viewLifecycleOwner
+        ) { _, bundle ->
+            val otpCode = bundle.getString(OtpBottomSheetFragment.BUNDLE_OTP)
+            if (!otpCode.isNullOrBlank()) {
+                binding.loading.visibility = View.VISIBLE
+                loginViewModel.login(
+                    usernameEditText.text.toString(),
+                    passwordEditText.text.toString(),
+                    if (serverPicker.text.toString() == "custom") customServerURLField.text.toString() else "https://"+serverPicker.text.toString(),
+                    otpCode
+                )
+            }
         }
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->

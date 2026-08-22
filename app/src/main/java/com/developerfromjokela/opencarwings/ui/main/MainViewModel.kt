@@ -28,12 +28,14 @@ import com.developerfromjokela.opencarwings.websocket.WSClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.openapitools.client.apis.AccountApi
 import org.openapitools.client.apis.AlertsApi
 import org.openapitools.client.apis.CarsApi
 import org.openapitools.client.apis.TokenApi
 import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
+import org.openapitools.client.models.AccountDetail
 import org.openapitools.client.models.AlertHistoryFull
 import org.openapitools.client.models.ApiCommandCreateRequest
 import org.openapitools.client.models.Car
@@ -50,12 +52,16 @@ import java.util.Locale
 
 
 data class CarUiState(
+    val accountInfo: AccountDetail? = null,
     val car: Car? = null,
     val cars: List<CarSerializerList> = emptyList(),
     val isCommandExecuting: Boolean = false,
     val selectedCarVin: String = "",
     val isFirstTimeLoading: Boolean = true,
     val isLoading: Boolean = false,
+    val showPinPrompt: Boolean = false,
+    val showSetupPinPrompt: Boolean = false,
+    val pendingCommand: ApiCommandCreateRequest? = null,
     val isRefreshing: Boolean = false,
     val batteryPercent: String = "0%",
     val carStatus: Int = R.string.unknown,
@@ -80,8 +86,6 @@ data class CarUiState(
     val capacityBars: String = "0 / 12",
     val batteryCapacity: String = "0.00 kWh",
     val lastUpdated: String = "",
-    val isChgActionInProgress: Boolean = false,
-    val isAcActionInProgress: Boolean = false,
     val isPlugActionEnabled: Boolean = false,
     val menuItems: List<MenuItem> = emptyList(),
     val quickActions: List<QuickAction> = emptyList(),
@@ -101,6 +105,8 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
     private val _uiState = MutableLiveData<CarUiState>()
     private val _carsState = MutableLiveData<List<CarSerializerList>>()
+
+    val accountInfoState = MutableLiveData<AccountDetail>()
     val notificationsState = MutableLiveData<List<AlertHistoryFull>>()
     val firstSocketConnection = MutableLiveData<Boolean>()
     val uiState: LiveData<CarUiState> get() = _uiState
@@ -149,14 +155,12 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
     fun onChargeAction() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value?.copy(isChgActionInProgress = true)
             sendTCUCommand(ApiCommandCreateRequest(BigDecimal(2)))
         }
     }
 
     fun onAcAction() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value?.copy(isAcActionInProgress = true)
             sendTCUCommand(ApiCommandCreateRequest(BigDecimal(if (_uiState.value?.isAcOn == true) 4 else 3)))
         }
     }
@@ -182,6 +186,9 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
     private fun sendTCUCommand(command: ApiCommandCreateRequest) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value?.copy(
+                isRefreshing = true
+            )
             checkOnDeviceSMS()
 
             try {
@@ -191,10 +198,17 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 }
                 updateUiState(car.car)
             } catch (e: ClientException) {
-                if (e.statusCode != 401 && e.statusCode != 403) {
+                if (e.statusCode == 403) {
                     _uiState.value = _uiState.value?.copy(
-                        isAcActionInProgress = false,
-                        isChgActionInProgress = false,
+                        isLoading = false,
+                        isRefreshing = false,
+                        fatalError = false,
+                        showPinPrompt = accountInfoState.value?.isCommandPinSet == true,
+                        showSetupPinPrompt = accountInfoState.value?.isCommandPinSet == false,
+                        pendingCommand = command
+                    )
+                } else if (e.statusCode != 401) {
+                    _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
                         fatalError = false,
@@ -210,8 +224,6 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             } catch (e: ServerException) {
                 e.printStackTrace()
                 _uiState.value = _uiState.value?.copy(
-                    isAcActionInProgress = false,
-                    isChgActionInProgress = false,
                     isLoading = false,
                     isRefreshing = false,
                     fatalError = false,
@@ -221,8 +233,6 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uiState.value = _uiState.value?.copy(
-                    isAcActionInProgress = false,
-                    isChgActionInProgress = false,
                     isLoading = false,
                     isRefreshing = false,
                     fatalError = false,
@@ -282,6 +292,46 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         }
     }
 
+    fun updateAccountInfo() {
+        viewModelScope.launch {
+            try {
+                ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
+                val accountInfo: AccountDetail = withContext(Dispatchers.IO) {
+                    ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
+                    AccountApi().accountDetailList()
+                }
+
+                accountInfoState.value = accountInfo
+            } catch (e: ClientException) {
+                if (e.statusCode == 401) {
+                    renewToken {
+                        updateAccountInfo()
+                    }
+                }
+            } catch (e: ServerException) {
+                e.printStackTrace()
+                if (e.statusCode == 404)
+                    return@launch
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    fatalError = false,
+                    error = if (e.statusCode != 503) "Server error ${e.statusCode}" else null,
+                    genericError = R.string.server_unavailable
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    fatalError = false,
+                    error = e.message,
+                    genericError = R.string.internal_app_error
+                )
+            }
+        }
+    }
+
     fun updateTokenMeta(pushToken: String) {
         viewModelScope.launch {
             try {
@@ -296,16 +346,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                     ))
                 }
             } catch (e: ClientException) {
-                if (e.statusCode != 401 && e.statusCode != 403) {
-                    _uiState.value = _uiState.value?.copy(
-                        isLoading = false,
-                        isRefreshing = false,
-                        fatalError = false,
-                        error = "Client error ${e.statusCode}",
-                        genericError = R.string.server_unavailable
-                    )
-                } else {
-                    // renew token
+                if (e.statusCode == 401) {
                     renewToken {
                         updateTokenMeta(pushToken)
                     }
@@ -378,13 +419,14 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         viewModelScope.launch {
             try {
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
-
                 val carsList: List<CarSerializerList> = withContext(Dispatchers.IO) {
                     ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                     CarsApi().apiCarList()
                 }
 
                 _carsState.value = carsList
+
+                updateAccountInfo()
 
                 var selectedCarListItm = carsList.find { it.vin == preferencesHelper.activeCarVin }
                 if (selectedCarListItm == null) {
@@ -425,7 +467,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 if (e.statusCode == 404 && !returningAfter404) {
                     preferencesHelper.activeCarVin = _carsState.value?.first()?.vin
                     fetchInitialData(true)
-                } else if (e.statusCode != 401 && e.statusCode != 403) {
+                } else if (e.statusCode != 401) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
@@ -468,11 +510,12 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                 withContext(Dispatchers.IO) {
                     val result = TokenApi().apiTokenRefreshCreate(TokenRefresh(preferencesHelper.refreshToken ?: "", preferencesHelper.accessToken ?: ""))
                     preferencesHelper.accessToken = result.access
+                    preferencesHelper.refreshToken = result.refresh
                 }
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 retryFunc()
             } catch (e: ClientException) {
-                if (e.statusCode != 401 && e.statusCode != 403) {
+                if (e.statusCode != 401) {
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
                         isRefreshing = false,
@@ -602,8 +645,6 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             capacityBars = evInfo.capBars?.let { "$it / 12" } ?: "0 / 12",
             batteryCapacity = batteryCapacity,
             lastUpdated = lastUpdated,
-            isChgActionInProgress = car.commandRequested == true && car.commandType == 2,
-            isAcActionInProgress = car.commandRequested == true && (car.commandType == 3 || car.commandType == 4),
             isPlugActionEnabled = evInfo.pluggedIn ?: false,
             menuItems = getMenuItems(car),
             quickActions = getQuickActions(car),
@@ -641,10 +682,33 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
     private fun sendCommand(commandId: Int): Boolean {
         viewModelScope.launch {
-            _uiState.value = _uiState.value?.copy(isAcActionInProgress = true)
-            sendTCUCommand(ApiCommandCreateRequest(BigDecimal(commandId)))
+            val pendingCmd = ApiCommandCreateRequest(BigDecimal(commandId))
+            if (_uiState.value?.car?.sensitiveCommands?.contains(commandId) == true && _uiState.value?.car?.commandPinEnforced == true) {
+                // Show PIN
+                _uiState.value = _uiState.value?.copy(showPinPrompt = accountInfoState.value?.isCommandPinSet == true,
+                    showSetupPinPrompt = accountInfoState.value?.isCommandPinSet == false,
+                    pendingCommand = pendingCmd)
+                return@launch
+            }
+            _uiState.value = _uiState.value?.copy(showPinPrompt = false, showSetupPinPrompt = false, pendingCommand = null)
+            sendTCUCommand(pendingCmd)
         }
         return true
+    }
+
+    fun pinEntered(pin: String) {
+        if (_uiState.value?.pendingCommand != null) {
+            sendTCUCommand(_uiState.value?.pendingCommand!!.copy(commandPin = pin))
+            _uiState.value = _uiState.value?.copy(showPinPrompt = false, showSetupPinPrompt = false, pendingCommand = null)
+        }
+    }
+
+    fun pinSetupComplete(pin: String) {
+        updateAccountInfo()
+        if (_uiState.value?.pendingCommand != null) {
+            sendTCUCommand(_uiState.value?.pendingCommand!!.copy(commandPin = pin))
+            _uiState.value = _uiState.value?.copy(showPinPrompt = false, showSetupPinPrompt = false, pendingCommand = null)
+        }
     }
 
     private fun getQuickActions(car: Car): List<QuickAction> {
