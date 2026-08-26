@@ -3,11 +3,8 @@ package com.developerfromjokela.opencarwings.utils
 import org.openapitools.client.models.CommandTimerSetting
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.OffsetTime
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -60,6 +57,14 @@ object CustomDateUtils {
             } catch (e: Exception) {
                 continue
             }
+        }
+        return null
+    }
+
+    fun correctDateBasedOnTimerTime(timer: CommandTimerSetting): LocalDate? {
+        if (timer.date != null) {
+            return OffsetDateTime.of(timer.date, parseToLocalTimerTime(timer.time)?.withOffsetSameInstant(
+                ZoneOffset.UTC)?.toLocalTime(), ZoneOffset.UTC).withOffsetSameInstant(ZonedDateTime.now().offset).toLocalDate()
         }
         return null
     }

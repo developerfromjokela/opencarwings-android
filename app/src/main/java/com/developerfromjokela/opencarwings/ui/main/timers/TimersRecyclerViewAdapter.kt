@@ -7,6 +7,7 @@ import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentTimerItemBinding
 import com.developerfromjokela.opencarwings.databinding.RecyclerviewEmptyviewBinding
 import com.developerfromjokela.opencarwings.utils.CustomDateUtils
+import com.developerfromjokela.opencarwings.utils.CustomDateUtils.correctDateBasedOnTimerTime
 import com.developerfromjokela.opencarwings.utils.EmptyViewViewHolder
 import org.openapitools.client.models.CommandTimerSetting
 import java.time.ZoneId
@@ -77,7 +78,7 @@ class TimersRecyclerViewAdapter(
         val configText = when (item.timerType) {
             0 -> {
                 "${item.commandTypeDisplay ?: "--"} | ${
-                    dateFormatter.format(item.date) ?: "--"
+                    dateFormatter.format(correctDateBasedOnTimerTime(item)) ?: "--"
                 } | ${CustomDateUtils.parseAndFormatToLocalTimerTime(item.time) ?: "--"}"
             }
             1 -> {

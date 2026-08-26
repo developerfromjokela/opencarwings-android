@@ -1,6 +1,5 @@
 package com.developerfromjokela.opencarwings.ui.main.timers
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,10 +12,8 @@ import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
-import androidx.core.view.get
 import androidx.core.view.removeItemAt
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.viewModelScope
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentTimerEditBinding
 import com.developerfromjokela.opencarwings.utils.CustomDateUtils
@@ -24,8 +21,6 @@ import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.developerfromjokela.opencarwings.utils.ServerUtils.getErrorCodeFromResponse
 import com.developerfromjokela.opencarwings.websocket.WSClient
-import com.google.android.libraries.places.widget.Autocomplete
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -41,13 +36,11 @@ import org.openapitools.client.apis.TokenApi
 import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
 import org.openapitools.client.infrastructure.ServerException
-import org.openapitools.client.models.CarUpdating
 import org.openapitools.client.models.CommandTimerSetting
-import org.openapitools.client.models.SendToCarLocation
 import org.openapitools.client.models.TokenRefresh
-import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.OffsetTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -187,7 +180,7 @@ class TimerEditFragment : Fragment() {
                 binding.timerSun.isChecked = timer!!.weekdaySun == true
             }
             if (timer!!.timerType == 0) {
-                dateSelection = timer!!.date
+                dateSelection = CustomDateUtils.correctDateBasedOnTimerTime(timer!!)
                 binding.timerDate.setText(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).format(dateSelection))
             }
         } else {
@@ -231,7 +224,13 @@ class TimerEditFragment : Fragment() {
             binding.timerSun.isChecked = false
         }
 
-        val newTimer = timer ?: CommandTimerSetting(
+        // Correct the date based on time and current timezone
+        dateSelection?.let {
+            dateSelection = OffsetDateTime.of(dateSelection, timeSelection?.toLocalTime(), timeSelection?.offset)
+                .withOffsetSameInstant(ZoneOffset.UTC).toLocalDate()
+        }
+
+        val newTimer = (timer ?: CommandTimerSetting(name = "", time = "")).copy(
             name = binding.timerName.text?.toString() ?: "",
             time = CustomDateUtils.formatToUTCTimerTime(timeSelection) ?: "",
             timerType = binding.timerModeTabs.selectedTabPosition,
@@ -246,8 +245,6 @@ class TimerEditFragment : Fragment() {
             weekdaySat = binding.timerSat.isChecked,
             weekdaySun = binding.timerSun.isChecked
         )
-
-        println(newTimer)
 
         val loadingView = Spinner(requireContext())
         val loadingDialog = MaterialAlertDialogBuilder(requireContext())
