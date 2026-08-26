@@ -22,6 +22,7 @@ import com.developerfromjokela.opencarwings.databinding.FragmentTimerEditBinding
 import com.developerfromjokela.opencarwings.utils.CustomDateUtils
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
+import com.developerfromjokela.opencarwings.utils.ServerUtils.getErrorCodeFromResponse
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
@@ -269,8 +270,9 @@ class TimerEditFragment : Fragment() {
             parentFragmentManager.popBackStack()
         } catch (e: ClientException) {
             loadingDialog.dismiss()
-            if (e.statusCode != 401) {
-                showError("Client error ${e.statusCode}", getString(R.string.server_unavailable))
+            if (e.statusCode != 401 && e.statusCode != 403) {
+                showError(getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                    getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
             } else {
                 // renew token
                 CoroutineScope(Dispatchers.IO).launch {
@@ -282,7 +284,8 @@ class TimerEditFragment : Fragment() {
         } catch (e: ServerException) {
             loadingDialog.dismiss()
             e.printStackTrace()
-            showError(getString(R.string.server_unavailable), if (e.statusCode != 503) "Server error ${e.statusCode}" else null)
+            showError(getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
         } catch (e: Exception) {
             loadingDialog.dismiss()
             e.printStackTrace()
@@ -313,7 +316,7 @@ class TimerEditFragment : Fragment() {
             parentFragmentManager.popBackStack()
         } catch (e: ClientException) {
             loadingDialog.dismiss()
-            if (e.statusCode != 401) {
+            if (e.statusCode != 401 && e.statusCode != 403) {
                 showError("Client error ${e.statusCode}", getString(R.string.server_unavailable))
             } else {
                 // renew token
@@ -344,10 +347,12 @@ class TimerEditFragment : Fragment() {
             ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
             retryFunc()
         } catch (e: ClientException) {
-            showError("Client error ${e.statusCode}", getString(R.string.server_unavailable))
+            showError( getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
         } catch (e: ServerException) {
             e.printStackTrace()
-            showError(getString(R.string.server_unavailable), if (e.statusCode != 503) "Server error ${e.statusCode}" else null)
+            showError(getErrorCodeFromResponse(e.response, "Server error ${e.statusCode}"),
+               getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
         } catch (e: Exception) {
             e.printStackTrace()
             showError(getString(R.string.internal_app_error), e.message)

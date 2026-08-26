@@ -1,7 +1,6 @@
-package com.developerfromjokela.opencarwings.utils
+package com.developerfromjokela.opencarwings.utils.dtc
 
 import com.squareup.moshi.Json
-
 
 data class DTC_Code(
     @Json(name="ecu_id")

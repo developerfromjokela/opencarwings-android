@@ -4,6 +4,7 @@
     <string name="whats_new_content">
         <![CDATA[<ul>
             <li>Implement 2FA support and Sensitive Command PIN</li>
+            <li>Bugfixes</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -167,4 +168,5 @@
     <string name="confirm_pin_label">Confirm PIN</string>
     <string name="otp_code">2FA Code</string>
     <string name="pin_mismatch">PIN codes are not identical!</string>
+    <string name="failure">Something went wrong</string>
 </resources>

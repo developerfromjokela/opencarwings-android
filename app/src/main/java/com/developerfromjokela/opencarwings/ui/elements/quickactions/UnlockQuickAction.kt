@@ -28,7 +28,7 @@ class UnlockQuickAction(callback: (commandId: Int) -> Boolean) :
             }
             .setPositiveButton(R.string.unlock) { dlg, _ ->
                 dlg.cancel()
-                sendCommand(8)
+                sendCommand(7)
             }
             .setTitle(R.string.unlock_doors)
             .setMessage(R.string.are_you_sure).show()

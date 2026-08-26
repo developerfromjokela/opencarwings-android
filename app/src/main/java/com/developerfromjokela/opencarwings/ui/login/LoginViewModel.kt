@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.developerfromjokela.opencarwings.BuildConfig
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.utils.ServerUtils.getErrorCodeFromResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -108,7 +109,7 @@ class LoginViewModel : ViewModel() {
                                 } catch (_: Exception) {}
                                 _loginResult.value = LoginResult(false, R.string.invalid_creds)
                             } else {
-                                _loginResult.value = LoginResult(false, errorString = "Client error ${e.statusCode}")
+                                _loginResult.value = LoginResult(false, errorString = getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"))
                             }
                         }
                     }
@@ -118,7 +119,7 @@ class LoginViewModel : ViewModel() {
                             if (e.statusCode == 503) {
                                 _loginResult.value = LoginResult(false, R.string.server_unavailable)
                             } else {
-                                _loginResult.value = LoginResult(false, errorString = "Server error ${e.statusCode}")
+                                _loginResult.value = LoginResult(false, errorString = getErrorCodeFromResponse(e.response, "Server error ${e.statusCode}"))
                             }
                         }
                     }

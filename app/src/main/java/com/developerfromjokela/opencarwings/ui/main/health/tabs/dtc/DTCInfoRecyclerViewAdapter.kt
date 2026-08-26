@@ -6,8 +6,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.databinding.FragmentEvInfoBinding
-import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoItem
-import com.developerfromjokela.opencarwings.utils.DTC_Code
+import com.developerfromjokela.opencarwings.utils.dtc.DTC_Code
 
 class DTCInfoRecyclerViewAdapter(
     var values: List<DTC_Code>

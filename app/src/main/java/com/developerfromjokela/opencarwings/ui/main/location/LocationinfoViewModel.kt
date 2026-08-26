@@ -13,6 +13,7 @@ import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
+import com.developerfromjokela.opencarwings.utils.ServerUtils.getErrorCodeFromResponse
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,12 +104,12 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
                 )
                 updateState(returningCar)
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isSharing = false,
                         fatalError = false,
-                        error = "Client error ${e.statusCode}",
-                        genericError = R.string.server_unavailable
+                        error = getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                        genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                     )
                 } else {
                     // renew token
@@ -121,8 +122,8 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
                 _uiState.value = _uiState.value?.copy(
                     isSharing = false,
                     fatalError = false,
-                    error = if (e.statusCode != 503) "Server error ${e.statusCode}" else null,
-                    genericError = R.string.server_unavailable
+                    error = getErrorCodeFromResponse(e.response, "Server error ${e.statusCode}"),
+                    genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -146,12 +147,12 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
 
                 updateState(car)
             } catch (e: ClientException) {
-                if (e.statusCode != 401) {
+                if (e.statusCode != 401 && e.statusCode != 403) {
                     _uiState.value = _uiState.value?.copy(
                         isSharing = false,
                         fatalError = false,
-                        error = "Client error ${e.statusCode}",
-                        genericError = R.string.server_unavailable
+                        error = getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                        genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                     )
                 } else {
                     // renew token
@@ -164,8 +165,8 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
                 _uiState.value = _uiState.value?.copy(
                     isSharing = false,
                     fatalError = false,
-                    error = if (e.statusCode != 503) "Server error ${e.statusCode}" else null,
-                    genericError = R.string.server_unavailable
+                    error = getErrorCodeFromResponse(e.response, "Server error ${e.statusCode}"),
+                    genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -202,16 +203,16 @@ class LocationInfoViewModel(application: OpenCARWINGS, private val preferencesHe
                 _uiState.value = _uiState.value?.copy(
                     isSharing = false,
                     fatalError = true,
-                    error = "Client error ${e.statusCode}",
-                    genericError = R.string.server_unavailable
+                    error = getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                    genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                 )
             } catch (e: ServerException) {
                 e.printStackTrace()
                 _uiState.value = _uiState.value?.copy(
                     isSharing = false,
                     fatalError = true,
-                    error = if (e.statusCode != 503) "Server error ${e.statusCode}" else null,
-                    genericError = R.string.server_unavailable
+                    error = if (e.statusCode != 503) getErrorCodeFromResponse(e.response, "Server error ${e.statusCode}") else null,
+                    genericError = if (e.statusCode != 503) R.string.failure else R.string.server_unavailable
                 )
             } catch (e: Exception) {
                 e.printStackTrace()

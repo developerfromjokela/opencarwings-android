@@ -14,16 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
-import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoRecyclerViewAdapter
-import com.developerfromjokela.opencarwings.utils.DTC_Code
+import com.developerfromjokela.opencarwings.utils.dtc.DTC_Code
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClient.Companion.moshi
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.navigation.NavigationBarView
 import com.squareup.moshi.Types
 import org.openapitools.client.models.Car
-import org.openapitools.client.models.EVInfo
 import org.openapitools.client.models.VehicleHealthInfo
 
 

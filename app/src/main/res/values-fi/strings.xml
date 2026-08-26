@@ -5,6 +5,7 @@
         <![CDATA[
         <ul>
             <li>Lisätty 2FA-tuki ja arkaluonteisten komentojen PIN-koodi</li>
+            <li>Bugikorjauksia</li>
         </ul>
         ]]>
     </string>
@@ -166,4 +167,5 @@
     <string name="confirm_pin_label">Vahvista PIN-koodi</string>
     <string name="otp_code">2FA-koodi</string>
     <string name="pin_mismatch">PIN-koodit eivät täsmää keskenään!</string>
+    <string name="failure">Jokin meni pieleen</string>
 </resources>
