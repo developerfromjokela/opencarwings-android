@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
 import org.openapitools.client.models.Car
@@ -92,8 +93,10 @@ class EVInfoFragment : Fragment() {
         list += EVInfoItem(R.string.remaining_charge, String.format("%.02f kWh", evInfo.whContent?.div(
             BigDecimal(1000)
         )))
-        list += EVInfoItem(R.string.range_acon, String.format("%d km", evInfo.rangeAcon))
-        list += EVInfoItem(R.string.range_acoff, String.format("%d km", evInfo.rangeAcoff))
+        val (acOnVal, acOnUnit) = LocaleUnitUtils.convertDistance(evInfo.rangeAcon?.toDouble() ?: 0.0)
+        val (acOffVal, acOffUnit) = LocaleUnitUtils.convertDistance(evInfo.rangeAcoff?.toDouble() ?: 0.0)
+        list += EVInfoItem(R.string.range_acon, String.format("%d %s", acOnVal.toInt(), acOnUnit))
+        list += EVInfoItem(R.string.range_acoff, String.format("%d %s", acOffVal.toInt(), acOffUnit))
         list += EVInfoItem(R.string.connected_to_charger, getString(if (evInfo.pluggedIn == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.is_charging, getString(if (evInfo.charging == true) R.string.yes else R.string.no))
         list += EVInfoItem(R.string.is_qc_charging, getString(if (evInfo.charging == true) R.string.yes else R.string.no))

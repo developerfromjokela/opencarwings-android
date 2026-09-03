@@ -76,6 +76,7 @@ import org.openapitools.client.models.EVInfo
 import org.openapitools.client.models.LocationInfo
 import org.openapitools.client.models.TCUConfiguration
 import org.openapitools.client.models.VehicleHealthInfo
+import java.text.DecimalFormat
 
 class MainFragment : Fragment() {
 
@@ -89,6 +90,10 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var topMargin = 0
+
+    companion object {
+        private val tempDecimal = DecimalFormat("0.##")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,18 +133,8 @@ class MainFragment : Fragment() {
                         MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.settings).setMessage(getString(R.string.settings_username, viewModel.accountInfoState.value?.username ?: prefUtil.username)).setNegativeButton(R.string.close) {dlg, _ ->
                             dlg.dismiss()
                         }.setPositiveButton(R.string.sign_out) {dlg, _ ->
-                            viewModel.signOut()
-                            WSClient.getInstance().disconnect()
                             dlg.dismiss()
-                            prefUtil.clearAll()
-                            Handler().postDelayed({
-                                val i: Intent = context!!.getPackageManager()
-                                    .getLaunchIntentForPackage(context!!.getPackageName())!!
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context!!.startActivity(i)
-                                System.exit(0)
-                            }, 500)
+                            performSignOut()
                         }.show()
                     }
                 }
@@ -304,7 +299,7 @@ class MainFragment : Fragment() {
             binding.swipeRefreshHome.isRefreshing = state.isRefreshing
             binding.carUpdatingProgress.visibility = if (state.isLoading || state.isCommandExecuting) View.VISIBLE else View.GONE
             binding.battPercent.text = state.batteryPercent
-            binding.carStatus.setText(state.carStatus)
+            binding.carStatus.text = state.carStatus
             var layers = emptyList<Drawable>()
 
             val isZE1 = state.car?.color?.value?.startsWith("l2_") == true
@@ -367,6 +362,10 @@ class MainFragment : Fragment() {
             binding.tcuId.text = "TCU ID: ${state.tcuId}"
             binding.naviId.text = "Navi ID: ${state.naviId}"
             binding.tcuSoft.text = getString(R.string.tcu_software, state.tcuSoftware)
+            binding.cabinTemp.visibility = if (state.cabinTemp != null) View.VISIBLE else View.GONE
+            if (state.cabinTemp != null) {
+                binding.cabinTemp.text = getString(R.string.cabin_temp, tempDecimal.format(state.cabinTemp.first), state.cabinTemp.second)
+            }
             binding.battSoh.text = "SOH: ${state.soh}"
             binding.capBars.text = getString(R.string.capacity_bars, state.capacityBars)
             binding.battPackCap.text = getString(R.string.battery_cap, state.batteryCapacity)
@@ -379,7 +378,7 @@ class MainFragment : Fragment() {
             (binding.quickActonBar.adapter as QuickActionsAdapter).updateItems(state.quickActions)
             state.genericError?.let {
                 context?.let {ctx ->
-                    MaterialAlertDialogBuilder(ctx)
+                    val builder = MaterialAlertDialogBuilder(ctx)
                         .setTitle(it)
                         .setMessage(state.error)
                         .setCancelable(!state.fatalError)
@@ -389,7 +388,13 @@ class MainFragment : Fragment() {
                                 requireActivity().finish()
                             }
                         }
-                        .show()
+                    if (state.fatalError) {
+                        builder.setNegativeButton(R.string.sign_out) {dlg, _ ->
+                            dlg.dismiss()
+                            performSignOut()
+                        }
+                    }
+                    builder.show()
                 }
             }
         }
@@ -508,6 +513,20 @@ class MainFragment : Fragment() {
 
         // Show the Snackbar
         snackbar.show()
+    }
+
+    private fun performSignOut() {
+        viewModel.signOut()
+        WSClient.getInstance().disconnect()
+        PreferencesHelper(requireContext()).clearAll()
+        Handler().postDelayed({
+            val i: Intent = requireContext().getPackageManager()
+                .getLaunchIntentForPackage(context!!.getPackageName())!!
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            requireContext().startActivity(i)
+            System.exit(0)
+        }, 500)
     }
 
     // Helper to resolve theme attribute colors with fallback

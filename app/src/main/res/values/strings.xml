@@ -3,8 +3,8 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Implement 2FA support and Sensitive Command PIN</li>
-            <li>Bugfixes</li>
+            <li>Show cabin temperature for ZE1</li>
+            <li>Distances now converted based on your region</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -28,6 +28,7 @@
     <string name="close">Close</string>
     <string name="unknown">Unknown</string>
     <string name="charging">Charging</string>
+    <string name="charging_estimation">Charging, finished in %1$s</string>
     <string name="plugged_in">Plugged In</string>
     <string name="running">Running (Parked)</string>
     <string name="parked">Parked</string>
@@ -150,10 +151,10 @@
     <string name="unavailable">Unavailable</string>
     <string name="TPMS">Tire Pressure</string>
     <string name="dtc_codes">DTC Codes</string>
-    <string name="tpmsReading" translatable="false">%1$s kPa</string>
+    <string name="tpmsReading" translatable="false">%1$s %2$s</string>
     <string name="maintenanceMileage">Mileage: %1$s</string>
     <string name="maintenanceAlert">Maintenance Alert: %1$s</string>
-    <string name="dtc_ecu_id">ECU $1%s</string>
+    <string name="dtc_ecu_id">ECU %1$s</string>
     <string name="veh_health">Vehicle Health</string>
     <string name="all_good">All good!</string>
     <string name="no_dtc_codes">No DTC Codes</string>
@@ -169,4 +170,5 @@
     <string name="otp_code">2FA Code</string>
     <string name="pin_mismatch">PIN codes are not identical!</string>
     <string name="failure">Something went wrong</string>
+    <string name="cabin_temp">Cabin: %s %s</string>
 </resources>

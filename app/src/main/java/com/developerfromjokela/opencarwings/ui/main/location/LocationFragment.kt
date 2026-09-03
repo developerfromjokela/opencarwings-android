@@ -48,7 +48,7 @@ import java.time.format.FormatStyle
 
 class LocationFragment : Fragment() {
 
-    private final val googleApiKey: String = ""
+    private final val googleApiKey: String = "AIzaSyDS54MSBX-cD2UIdN0Tak3gE-mFdhSZHRw"
     private final val osmRasterStyle = """
     {
       "version": 8,

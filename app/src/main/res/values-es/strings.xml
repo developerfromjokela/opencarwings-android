@@ -28,6 +28,7 @@
     <string name="close">Cerrar</string>
     <string name="unknown">Desconocido</string>
     <string name="charging">Cargando</string>
+    <string name="charging_estimation">Cargando, finaliza en %1$s</string>
     <string name="plugged_in">Conectado</string>
     <string name="running">En marcha (Estacionado)</string>
     <string name="parked">Estacionado</string>
@@ -168,4 +169,5 @@
     <string name="otp_code">Código 2FA</string>
     <string name="pin_mismatch">Los códigos PIN no son idénticos</string>
     <string name="failure">Algo salió mal</string>
+    <string name="cabin_temp">Cabina: %s %s</string>
 </resources>

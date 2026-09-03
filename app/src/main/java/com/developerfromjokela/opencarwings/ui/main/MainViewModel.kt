@@ -22,6 +22,8 @@ import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAc
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.PlugQuickAction
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.QuickAction
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.UnlockQuickAction
+import com.developerfromjokela.opencarwings.utils.CustomDateUtils.formatMinutesToHHMM
+import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
 import com.developerfromjokela.opencarwings.utils.ServerUtils.getErrorCodeFromResponse
@@ -65,10 +67,10 @@ data class CarUiState(
     val pendingCommand: ApiCommandCreateRequest? = null,
     val isRefreshing: Boolean = false,
     val batteryPercent: String = "0%",
-    val carStatus: Int = R.string.unknown,
+    val carStatus: String = "",
     val carImageResId: Int? = null,
-    val rangeAcOn: String = "0 km",
-    val rangeAcOff: String = "0 km",
+    val rangeAcOn: String = "--",
+    val rangeAcOff: String = "--",
     val activeSegments: Int = 0,
     val carGear: Int = 0,
     val isCharging: Boolean = false,
@@ -87,6 +89,7 @@ data class CarUiState(
     val capacityBars: String = "0 / 12",
     val batteryCapacity: String = "0.00 kWh",
     val lastUpdated: String = "",
+    val cabinTemp: Pair<Double, String>? = null,
     val isPlugActionEnabled: Boolean = false,
     val menuItems: List<MenuItem> = emptyList(),
     val quickActions: List<QuickAction> = emptyList(),
@@ -578,12 +581,28 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
         // Determine car status
         val carStatus = when {
-            evInfo.quickCharging == true -> R.string.quick_charging
-            evInfo.charging == true -> R.string.charging
-            evInfo.pluggedIn == true -> R.string.plugged_in
-            evInfo.carGear != 0 -> R.string.driving
-            evInfo.carRunning == true -> R.string.running
-            else -> R.string.parked
+            evInfo.quickCharging == true -> application.getString(R.string.quick_charging)
+            evInfo.charging == true -> {
+                var estimate: Int? = null
+                if (evInfo.limitChgTime != 2047 && evInfo.limitChgTime != 4097) {
+                    estimate = evInfo.limitChgTime
+                }
+                if (evInfo.fullChgTime != 2047 && evInfo.fullChgTime != 4097) {
+                    estimate = evInfo.fullChgTime
+                }
+                if (evInfo.obc6kw != 2047 && evInfo.obc6kw != 4097) {
+                    estimate = evInfo.obc6kw
+                }
+                if (estimate != null) {
+                    application.getString(R.string.charging_estimation, formatMinutesToHHMM(estimate))
+                } else {
+                    application.getString(R.string.charging)
+                }
+            }
+            evInfo.pluggedIn == true -> application.getString(R.string.plugged_in)
+            evInfo.carGear != 0 -> application.getString(R.string.driving)
+            evInfo.carRunning == true -> application.getString(R.string.running)
+            else -> application.getString(R.string.parked)
         }
 
         val kWhNew = (evInfo.maxGids?.times(80))
@@ -593,17 +612,24 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
         val soc = String.format("%.1f%%", (evInfo.socDisplay ?: evInfo.soc ?: 0.0))
 
-        var carGeneration = "ZE0"
 
-        if (car.vehicleCode1 == 92 || car.vehicleCode1 == 146) {
-            carGeneration = "AZE0"
+        var carGeneration = "LEAF ZE0"
+
+        if (!car.vin.startsWith("VZK")) {
+            if (car.vehicleCode1 == 92 || car.vehicleCode1 == 146) {
+                carGeneration = "LEAF AZE0"
+            }
+
+            if (car.tcuVer == "TCU032")
+                carGeneration = "LEAF AZE0 (2016-17)"
+
+            if (car.tcuVer == "TCU033")
+                carGeneration = "LEAF ZE1"
+        } else {
+            carGeneration = "e-NV200"
+            if (car.tcuVer == "TCU033")
+                carGeneration = "e-NV200 40 kWh (2018+)"
         }
-
-        if (car.tcuVer == "TCU032")
-            carGeneration = "AZE0 (2016-17)"
-
-        if (car.tcuVer == "TCU033")
-            carGeneration = "ZE1"
 
         val signalDrawable = when (car.signalLevel) {
             1 -> R.drawable.signal_1
@@ -612,6 +638,17 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             4 -> R.drawable.signal_3
             5 -> R.drawable.signal_4
             else -> R.drawable.signal_0
+        }
+
+        val (acOnVal, acOnUnit) = LocaleUnitUtils.convertDistance(evInfo.rangeAcon?.toDouble() ?: 0.0)
+        val (acOffVal, acOffUnit) = LocaleUnitUtils.convertDistance(evInfo.rangeAcoff?.toDouble() ?: 0.0)
+        val (odoVal, odoUnit) = LocaleUnitUtils.convertDistance(car.odometer?.toDouble() ?: 0.0)
+
+        val temp: Pair<Double, String>? = when (car.tcuVer) {
+            "TCU033" -> {
+                LocaleUnitUtils.convertTemperature(car.evInfo.cabinTemp?.toDouble() ?: 0.0)
+            }
+            else -> null
         }
 
         _uiState.value = CarUiState(
@@ -626,8 +663,8 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             batteryPercent = soc,
             carStatus = carStatus,
             carImageResId = carImageResId,
-            rangeAcOn = evInfo.rangeAcon?.let { "$it km" } ?: "0 km",
-            rangeAcOff = evInfo.rangeAcoff?.let { "$it km" } ?: "0 km",
+            rangeAcOn = "${acOnVal.toInt()} $acOnUnit",
+            rangeAcOff = "${acOffVal.toInt()} $acOffUnit",
             activeSegments = evInfo.chargeBars ?: 0,
             isCharging = evInfo.charging ?: false,
             isRunning = evInfo.carRunning ?: false,
@@ -635,12 +672,13 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             isQuickCharging = evInfo.quickCharging ?: false,
             isPluggedIn = evInfo.pluggedIn ?: false,
             isAcOn = evInfo.acStatus ?: false,
-            carModel = "Nissan LEAF $carGeneration",
+            carModel = "Nissan $carGeneration",
             carName = car.nickname ?: car.vin,
             vin = car.vin,
             tcuId = car.tcuModel ?: "",
             naviId = car.tcuSerial ?: "",
-            odometer = car.odometer?.let {if (it != -1) "$it km" else "--"} ?: "--",
+            odometer = "${odoVal.toInt()} $odoUnit",
+            cabinTemp = temp,
             tcuSoftware = car.tcuVer ?: car.tcuVersion ?: "",
             soh = evInfo.soh?.let { "$it%" } ?: "",
             capacityBars = evInfo.capBars?.let { "$it / 12" } ?: "0 / 12",

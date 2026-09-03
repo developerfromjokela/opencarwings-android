@@ -15,10 +15,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
+import org.maplibre.android.style.expressions.Expression.NumberFormatOption.locale
 import org.openapitools.client.models.Car
 import org.openapitools.client.models.VehicleHealthInfo
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -75,12 +79,17 @@ class HealthTPMSFragment : Fragment() {
     }
 
     private fun updateUIState() {
-        tpmsFR.text = resources.getString(R.string.tpmsReading, healthInfo?.tpmsFr?.toString() ?: "--")
-        tpmsFL.text = resources.getString(R.string.tpmsReading, healthInfo?.tpmsFl?.toString() ?: "--")
-        tpmsRR.text = resources.getString(R.string.tpmsReading, healthInfo?.tpmsRr?.toString() ?: "--")
-        tpmsRL.text = resources.getString(R.string.tpmsReading, healthInfo?.tpmsRl?.toString() ?: "--")
+        val (valFR, unitFR) = LocaleUnitUtils.convertTirePressure(healthInfo?.tpmsFrFloat?.toDouble() ?: healthInfo?.tpmsFr?.toDouble() ?: 0.0)
+        val (valFL, unitFL) = LocaleUnitUtils.convertTirePressure(healthInfo?.tpmsFlFloat?.toDouble() ?: healthInfo?.tpmsFl?.toDouble() ?: 0.0)
+        val (valRR, unitRR) = LocaleUnitUtils.convertTirePressure(healthInfo?.tpmsRrFloat?.toDouble() ?: healthInfo?.tpmsRr?.toDouble() ?: 0.0)
+        val (valRL, unitRL) = LocaleUnitUtils.convertTirePressure(healthInfo?.tpmsRlFloat?.toDouble() ?: healthInfo?.tpmsRl?.toDouble() ?: 0.0)
+        tpmsFR.text = resources.getString(R.string.tpmsReading, if(valFR == 0.0) "--" else pressureFormatter.format(valFR), unitFR)
+        tpmsFL.text = resources.getString(R.string.tpmsReading, if(valFL == 0.0) "--" else pressureFormatter.format(valFL), unitFL)
+        tpmsRR.text = resources.getString(R.string.tpmsReading, if(valRR == 0.0) "--" else pressureFormatter.format(valRR), unitRR)
+        tpmsRL.text = resources.getString(R.string.tpmsReading, if(valRL == 0.0) "--" else pressureFormatter.format(valRL), unitRL)
 
-        mileage.text = resources.getString(R.string.maintenanceMileage, (healthInfo?.mileage?.let { "${healthInfo?.mileage?.toInt()} km" } ?: "--"))
+        val (milValue, milUnit) = LocaleUnitUtils.convertDistance(healthInfo?.mileage?.toDouble() ?: 0.0)
+        mileage.text = resources.getString(R.string.maintenanceMileage, (healthInfo?.mileage?.let { "${milValue.toInt()} $milUnit" } ?: "--"))
         maintenanceAlert.text = resources.getString(R.string.maintenanceAlert, (if (healthInfo?.maintenanceAlert == true) getString(R.string.yes) else getString(R.string.no)))
 
         lastUpdated.text = healthInfo?.lastUpdated?.atZoneSameInstant(ZoneId.systemDefault())
@@ -169,6 +178,9 @@ class HealthTPMSFragment : Fragment() {
     companion object {
         const val ARG_HEALTHINFO = "healthinfo"
         const val ARG_COLOR = "color"
+
+        private val pressureFormatter =
+            DecimalFormat("0.##", DecimalFormatSymbols.getInstance())
 
         @JvmStatic
         fun newInstance(healthInfo: VehicleHealthInfo?, color: String) =

@@ -2,14 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/quick_action_root">
+    android:id="@+id/quick_action_root"
+    android:layout_width="50dp"
+    android:layout_height="50dp">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/action_progress"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="47dp"
+        android:layout_height="47dp"
         android:layout_margin="3dp"
         android:elevation="10dp"
         android:indeterminate="true"
@@ -25,25 +25,23 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action_button"
         style="@style/Widget.Material3.FloatingActionButton.Secondary"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="47dp"
+        android:layout_height="47dp"
         android:clickable="true"
+        android:elevation="2dp"
         android:focusable="true"
         android:src="@drawable/ic_ac"
-        app:fabCustomSize="50dp"
-        app:elevation="2dp"
-        android:elevation="2dp"
-        app:fabSize="normal"
         android:stateListAnimator="@null"
         app:borderWidth="0dp"
+        app:elevation="2dp"
+        app:fabCustomSize="47dp"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:maxImageSize="30dp"
+        app:maxImageSize="28dp"
         app:useCompatPadding="false" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

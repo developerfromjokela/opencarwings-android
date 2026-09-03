@@ -30,6 +30,7 @@
     <string name="close">Sulje</string>
     <string name="unknown">Tuntematon</string>
     <string name="charging">Ladataan</string>
+    <string name="charging_estimation">Ladataan, valmis %1$s kuluttua</string>
     <string name="plugged_in">Laturi yhdistetty</string>
     <string name="running">Käynnissä (Pysäköity)</string>
     <string name="parked">Pysäköity</string>
@@ -168,4 +169,5 @@
     <string name="otp_code">2FA-koodi</string>
     <string name="pin_mismatch">PIN-koodit eivät täsmää keskenään!</string>
     <string name="failure">Jokin meni pieleen</string>
+    <string name="cabin_temp">Sisätilat: %s %s</string>
 </resources>
