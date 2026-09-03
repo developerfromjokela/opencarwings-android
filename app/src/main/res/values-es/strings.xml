@@ -3,8 +3,8 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Implementar soporte de 2FA y PIN de comando sensible</li>
-            <li>Corrección de errores</li>
+            <li>Mostrar la temperatura de la cabina para ZE1</li>
+            <li>Las distancias ahora se convierten según tu región</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>

@@ -4,8 +4,8 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Lisätty 2FA-tuki ja arkaluonteisten komentojen PIN-koodi</li>
-            <li>Bugikorjauksia</li>
+            <li>Sisätilojen lämpötila mallille ZE1</li>
+            <li>Yksiköt muunnetaan nyt alueesi mukaan</li>
         </ul>
         ]]>
     </string>
