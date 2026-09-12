@@ -1,5 +1,9 @@
 package com.developerfromjokela.opencarwings.utils
 
+import android.icu.text.MeasureFormat
+import android.icu.util.Measure
+import android.icu.util.MeasureUnit
+import android.os.Build
 import org.openapitools.client.models.CommandTimerSetting
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -27,6 +31,22 @@ object CustomDateUtils {
         val hours = minutes / 60
         val remainingMinutes = minutes % 60
         return String.format(Locale.getDefault(), "%02d:%02d", hours, remainingMinutes)
+    }
+
+    fun formatMinutesToDuration(minutes: Int): String {
+        if (minutes == 2047 || minutes == 4095) {
+            return "--:--"
+        }
+
+        val hours = minutes / 60
+        val remainingMinutes = minutes % 60
+
+        val formatter = MeasureFormat.getInstance(Locale.getDefault(), MeasureFormat.FormatWidth.NARROW)
+        val measures = buildList {
+            if (hours > 0) add(Measure(hours, MeasureUnit.HOUR))
+            add(Measure(remainingMinutes, MeasureUnit.MINUTE))
+        }
+        return formatter.formatMeasures(*measures.toTypedArray())
     }
 
     fun formatToLocalTime(

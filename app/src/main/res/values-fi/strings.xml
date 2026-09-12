@@ -30,7 +30,7 @@
     <string name="close">Sulje</string>
     <string name="unknown">Tuntematon</string>
     <string name="charging">Ladataan</string>
-    <string name="charging_estimation">Ladataan, valmis %1$s kuluttua</string>
+    <string name="charging_estimation">Ladataan, jäljellä ~%1$s</string>
     <string name="plugged_in">Laturi yhdistetty</string>
     <string name="running">Käynnissä (Pysäköity)</string>
     <string name="parked">Pysäköity</string>

@@ -28,7 +28,7 @@
     <string name="close">Cerrar</string>
     <string name="unknown">Desconocido</string>
     <string name="charging">Cargando</string>
-    <string name="charging_estimation">Cargando, finaliza en %1$s</string>
+    <string name="charging_estimation">Cargando, finaliza en ~%1$s</string>
     <string name="plugged_in">Conectado</string>
     <string name="running">En marcha (Estacionado)</string>
     <string name="parked">Estacionado</string>

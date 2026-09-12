@@ -22,7 +22,7 @@ import com.developerfromjokela.opencarwings.ui.elements.quickactions.LockQuickAc
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.PlugQuickAction
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.QuickAction
 import com.developerfromjokela.opencarwings.ui.elements.quickactions.UnlockQuickAction
-import com.developerfromjokela.opencarwings.utils.CustomDateUtils.formatMinutesToHHMM
+import com.developerfromjokela.opencarwings.utils.CustomDateUtils.formatMinutesToDuration
 import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.utils.ServerBaseURLUtils
@@ -594,7 +594,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
                     estimate = evInfo.obc6kw
                 }
                 if (estimate != null) {
-                    application.getString(R.string.charging_estimation, formatMinutesToHHMM(estimate))
+                    application.getString(R.string.charging_estimation, formatMinutesToDuration(estimate))
                 } else {
                     application.getString(R.string.charging)
                 }

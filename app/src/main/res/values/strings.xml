@@ -28,7 +28,7 @@
     <string name="close">Close</string>
     <string name="unknown">Unknown</string>
     <string name="charging">Charging</string>
-    <string name="charging_estimation">Charging, finished in %1$s</string>
+    <string name="charging_estimation">Charging, ~%1$s left</string>
     <string name="plugged_in">Plugged In</string>
     <string name="running">Running (Parked)</string>
     <string name="parked">Parked</string>
