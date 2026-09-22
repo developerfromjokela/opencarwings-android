@@ -170,4 +170,5 @@
     <string name="pin_mismatch">PIN-koodit eivät täsmää keskenään!</string>
     <string name="failure">Jokin meni pieleen</string>
     <string name="cabin_temp">Sisätilat: %s %s</string>
+    <string name="incomplete_info">Puutteelliset tiedot</string>
 </resources>

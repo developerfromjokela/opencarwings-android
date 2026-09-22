@@ -170,4 +170,5 @@
     <string name="pin_mismatch">Los códigos PIN no son idénticos</string>
     <string name="failure">Algo salió mal</string>
     <string name="cabin_temp">Cabina: %s %s</string>
+    <string name="incomplete_info">Información incompleta</string>
 </resources>

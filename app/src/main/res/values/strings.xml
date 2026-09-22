@@ -171,4 +171,5 @@
     <string name="pin_mismatch">PIN codes are not identical!</string>
     <string name="failure">Something went wrong</string>
     <string name="cabin_temp">Cabin: %s %s</string>
+    <string name="incomplete_info">Incomplete information</string>
 </resources>

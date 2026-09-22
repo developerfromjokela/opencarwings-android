@@ -253,8 +253,8 @@ class TimerEditFragment : Fragment() {
             .setView(loadingView)
             .create()
         loadingDialog.show()
-        try {
-            CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
                 ApiClient.apiKey["Authorization"] = preferencesHelper.accessToken ?: ""
                 withContext(Dispatchers.IO) {
                     if (timer == null)
@@ -262,31 +262,39 @@ class TimerEditFragment : Fragment() {
                     else
                         CarsApi().apiCarTimersPartialUpdate(preferencesHelper.activeCarVin!!, newTimer.id?.toString() ?: "", newTimer)
                 }
-            }
-            loadingDialog.dismiss()
-            parentFragmentManager.popBackStack()
-        } catch (e: ClientException) {
-            loadingDialog.dismiss()
-            if (e.statusCode != 401 && e.statusCode != 403) {
-                showError(getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
-                    getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
-            } else {
-                // renew token
-                CoroutineScope(Dispatchers.IO).launch {
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    parentFragmentManager.popBackStack()
+                }
+            } catch (e: ClientException) {
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                }
+                if (e.statusCode != 401 && e.statusCode != 403) {
+                    withContext(Dispatchers.Main) {
+                        showError(getString(if (e.statusCode != 503) (if (e.statusCode == 400) R.string.incomplete_info else R.string.failure) else R.string.server_unavailable),
+                            getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),)
+                    }
+                } else {
+                    // renew token
                     renewToken {
                         save()
                     }
                 }
+            } catch (e: ServerException) {
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    e.printStackTrace()
+                    showError(getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
+                        getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    loadingDialog.dismiss()
+                    e.printStackTrace()
+                    showError(getString(R.string.internal_app_error), e.message)
+                }
             }
-        } catch (e: ServerException) {
-            loadingDialog.dismiss()
-            e.printStackTrace()
-            showError(getErrorCodeFromResponse(e.response, "Client error ${e.statusCode}"),
-                getString(if (e.statusCode != 503) R.string.failure else R.string.server_unavailable))
-        } catch (e: Exception) {
-            loadingDialog.dismiss()
-            e.printStackTrace()
-            showError(getString(R.string.internal_app_error), e.message)
         }
     }
 
