@@ -3,8 +3,7 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Mostrar la temperatura de la cabina para ZE1</li>
-            <li>Las distancias ahora se convierten según tu región</li>
+            <li>Corrección de errores</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>

@@ -3,8 +3,7 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Show cabin temperature for ZE1</li>
-            <li>Distances now converted based on your region</li>
+            <li>Fix bugs</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
