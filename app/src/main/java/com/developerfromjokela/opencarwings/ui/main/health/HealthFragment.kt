@@ -35,12 +35,11 @@ class HealthFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        arguments?.let { it ->
+        arguments?.let {
             healthInfo =
                 it.getString(ARG_HEALTHINFO)
                     ?.let { it1 -> WSClient.moshi.adapter(VehicleHealthInfo::class.java).fromJson(it1) }
-            color = it.getString(HealthTPMSFragment.ARG_COLOR, "")
+            color = it.getString(ARG_COLOR, "")
         }
     }
 

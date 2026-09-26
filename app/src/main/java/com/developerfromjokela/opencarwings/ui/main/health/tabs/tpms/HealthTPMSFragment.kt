@@ -73,9 +73,12 @@ class HealthTPMSFragment : Fragment() {
         lastUpdated = view.findViewById(R.id.tpmsLastUpdated)
         tpmsLight = view.findViewById(R.id.tpmsWarnIcon)
         carOverlay = view.findViewById(R.id.carOverlay)
-
-        updateUIState()
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        updateUIState()
     }
 
     private fun updateUIState() {
@@ -97,7 +100,6 @@ class HealthTPMSFragment : Fragment() {
             ?: "---"
 
         tpmsLight.visibility = if (healthInfo?.tpmsLight == true) View.VISIBLE else View.INVISIBLE
-
         val carImageResId = when (color) {
             "l_coulisred" -> R.drawable.o_l_coulisred
             "l_deepblue" -> R.drawable.o_l_deepblue
