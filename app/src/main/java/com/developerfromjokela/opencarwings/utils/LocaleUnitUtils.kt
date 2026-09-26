@@ -3,11 +3,16 @@ package com.developerfromjokela.opencarwings.utils
 import android.icu.util.LocaleData
 import android.icu.util.ULocale
 import android.os.Build
+import com.developerfromjokela.opencarwings.OpenCARWINGS
 import java.util.Locale
 
 object LocaleUnitUtils {
 
     fun isImperial(temp: Boolean = false): Boolean {
+        val prefsUnit = OpenCARWINGS.context.preferencesHelper.units
+        if (prefsUnit != 0) {
+            return prefsUnit == 1
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val locale = ULocale.getDefault()
             val system = LocaleData.getMeasurementSystem(locale)

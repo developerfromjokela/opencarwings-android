@@ -164,6 +164,14 @@
     <string name="incomplete_info">ofullständig information</string>
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content"><![CDATA[<ul>
-            <li>Fixa buggar</li>
+            <li>Nu kan du välja önskad temperatur när du startar AC på distans</li>
+            <li>Lade till meddelande om laddningsavbrott när AC-strömmen avbryts</li>
+            <li>Manuell åsidosättning för enheter</li>
         </ul>]]></string>
+    <string name="unit_auto">Auto</string>
+    <string name="unit_imperial">Imperialsystemet</string>
+    <string name="unit_metric">Metriska systemet</string>
+    <string name="unit_settings">Enheter</string>
+    <string name="app_version_format">App version: %s</string>
+    <string name="charging_interrupted">Laddning avbruten</string>
 </resources>

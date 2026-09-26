@@ -14,6 +14,8 @@ class PreferencesHelper(context: Context) {
         private const val KEY_USERNAME = "username"
         private const val KEY_SERVER = "server"
         private const val KEY_ACTIVE_CAR_VIN = "active_car_vin"
+
+        private const val KEY_UNITS = "units"
         private const val KEY_WHATS_NEW = ""
     }
 
@@ -40,6 +42,11 @@ class PreferencesHelper(context: Context) {
     var whatsNew: String?
         get() = prefs.getString(KEY_WHATS_NEW, "")
         set(value) = prefs.edit { putString(KEY_WHATS_NEW, value) }
+
+    var units: Int?
+        get() = prefs.getInt(KEY_UNITS, 0)
+        set(value) = prefs.edit { putInt(KEY_UNITS, value ?: 0) }
+
 
     fun clearAll() {
         prefs.edit { clear() }

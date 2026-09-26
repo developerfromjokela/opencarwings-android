@@ -4,7 +4,9 @@
     <string name="whats_new_content">
         <![CDATA[
         <ul>
-            <li>Bugikorjauksia</li>
+            <li>Voit valita haluamasi lämpötilan, kun käynnistät etäilmastoinnin</li>
+            <li>Jos AC-virta katkeaa latauksen aikana, siitä tulee ilmoitus näytölle</li>
+            <li>Yksiköt pystyy valita käsin asetuksista</li>
         </ul>
         ]]>
     </string>
@@ -170,4 +172,11 @@
     <string name="failure">Jokin meni pieleen</string>
     <string name="cabin_temp">Sisätilat: %s %s</string>
     <string name="incomplete_info">Puutteelliset tiedot</string>
+    <string name="unit_auto">Auto</string>
+    <string name="unit_imperial">Imperiumin järjestelmä</string>
+    <string name="unit_metric">Metrinen järjestelmä</string>
+
+    <string name="unit_settings">Yksiköt</string>
+    <string name="app_version_format">Sovelluksen versio: %s</string>
+    <string name="charging_interrupted">Lataus keskeytynyt</string>
 </resources>

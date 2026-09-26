@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
@@ -66,6 +67,8 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
@@ -129,13 +132,7 @@ class MainFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: android.view.MenuItem): Boolean {
                 when(menuItem.itemId) {
                     R.id.app_settings -> {
-                        val prefUtil = PreferencesHelper(requireContext())
-                        MaterialAlertDialogBuilder(requireContext()).setTitle(R.string.settings).setMessage(getString(R.string.settings_username, viewModel.accountInfoState.value?.username ?: prefUtil.username)).setNegativeButton(R.string.close) {dlg, _ ->
-                            dlg.dismiss()
-                        }.setPositiveButton(R.string.sign_out) {dlg, _ ->
-                            dlg.dismiss()
-                            performSignOut()
-                        }.show()
+                        showSettingsDialog()
                     }
                 }
                 return true
@@ -327,6 +324,12 @@ class MainFragment : Fragment() {
                 }
             }
 
+            if (state.isChargingInterrupted && !state.isQuickCharging) {
+                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_ci else R.drawable.l_ci)?.let {
+                    layers += it
+                }
+            }
+
             if (state.isCharging && !state.isQuickCharging) {
                 ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_chg else R.drawable.l_chg)?.let {
                     layers += it
@@ -364,7 +367,8 @@ class MainFragment : Fragment() {
             binding.tcuSoft.text = getString(R.string.tcu_software, state.tcuSoftware)
             binding.cabinTemp.visibility = if (state.cabinTemp != null) View.VISIBLE else View.GONE
             if (state.cabinTemp != null) {
-                binding.cabinTemp.text = getString(R.string.cabin_temp, tempDecimal.format(state.cabinTemp.first), state.cabinTemp.second)
+                val tmpVal = if (state.cabinTemp.first >= 87.5 || state.cabinTemp.first <= -40)  "--" else tempDecimal.format(state.cabinTemp.first)
+                binding.cabinTemp.text = getString(R.string.cabin_temp, tmpVal, state.cabinTemp.second)
             }
             binding.battSoh.text = "SOH: ${state.soh}"
             binding.capBars.text = getString(R.string.capacity_bars, state.capacityBars)
@@ -603,6 +607,62 @@ class MainFragment : Fragment() {
                 ContextCompat.RECEIVER_EXPORTED
             )
         }
+    }
+
+    fun showSettingsDialog() {
+        val prefUtil = PreferencesHelper(requireContext())
+
+        val view = layoutInflater.inflate(R.layout.settings_dialog, null)
+
+        val textUsername = view.findViewById<TextView>(R.id.textUsername)
+        val textAppVersion = view.findViewById<TextView>(R.id.textAppVersion)
+        val toggleGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.unitToggleGroup)
+        val btnAuto = view.findViewById<MaterialButton>(R.id.btnAuto)
+        val btnImperial = view.findViewById<MaterialButton>(R.id.btnImperial)
+        val btnMetric = view.findViewById<MaterialButton>(R.id.btnMetric)
+
+        textUsername.text = getString(
+            R.string.settings_username,
+            viewModel.accountInfoState.value?.username ?: prefUtil.username
+        )
+
+        val versionName = try {
+            requireContext().packageManager
+                .getPackageInfo(requireContext().packageName, 0).versionName
+        } catch (_: PackageManager.NameNotFoundException) {
+            "—"
+        }
+        textAppVersion.text = getString(R.string.app_version_format, versionName)
+
+        // Set initial toggle state from saved preference
+        val selectedId = when (prefUtil.units) {
+            1 -> btnImperial.id
+            2 -> btnMetric.id
+            else -> btnAuto.id
+        }
+        toggleGroup.check(selectedId)
+
+        toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            prefUtil.units = when (checkedId) {
+                btnImperial.id -> 1
+                btnMetric.id -> 2
+                else -> 0
+            }
+            viewModel.refreshCurrentCarInfo()
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.settings)
+            .setView(view)
+            .setNegativeButton(R.string.close) { dlg, _ ->
+                dlg.dismiss()
+            }
+            .setPositiveButton(R.string.sign_out) { dlg, _ ->
+                dlg.dismiss()
+                performSignOut()
+            }
+            .show()
     }
 
     override fun onDestroy() {

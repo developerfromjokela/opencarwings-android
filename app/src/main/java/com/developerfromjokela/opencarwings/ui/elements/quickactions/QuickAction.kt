@@ -31,13 +31,13 @@ open class QuickAction {
     private var carData: Car? = null
     lateinit var progressBar: CircularProgressIndicator
     lateinit var button: FloatingActionButton
-    private var sendCommandCallback: (commandId: Int) -> Boolean
+    private var sendCommandCallback: (commandId: Int, data:Map<String, Any>?) -> Boolean
     var context: Context? = null
 
     constructor(
         id: String,
         icon: Int,
-        sendCommandCallback: (commandId: Int) -> Boolean,
+        sendCommandCallback: (commandId: Int, data:Map<String, Any>?) -> Boolean,
         actionOnTint: Int? = null,
         actionOffTint: Int? = null,
         actionOnIconTint: Int? = null,
@@ -108,8 +108,8 @@ open class QuickAction {
         renderAction()
     }
 
-    fun sendCommand(commandId: Int) {
-        this.sendCommandCallback(commandId)
+    fun sendCommand(commandId: Int,  data: Map<String, Any>? = null) {
+        this.sendCommandCallback(commandId, data)
     }
 
     fun setCarData(carData: Car?): QuickAction {

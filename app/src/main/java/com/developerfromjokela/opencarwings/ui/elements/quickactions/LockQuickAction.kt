@@ -8,7 +8,7 @@ import org.openapitools.client.models.Car
 /**
  * Quick action handling climate control
  */
-class LockQuickAction(callback: (commandId: Int) -> Boolean) :
+class LockQuickAction(callback: (commandId: Int, data:Map<String, Any>?) -> Boolean) :
     QuickAction(ACTION_ID, R.drawable.ic_lock, callback,
         actionOnTint = com.google.android.material.R.attr.colorSurfaceContainerLow,
         actionOffTint = com.google.android.material.R.attr.colorSurfaceContainerLow,

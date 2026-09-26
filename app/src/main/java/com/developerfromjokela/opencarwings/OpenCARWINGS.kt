@@ -1,6 +1,7 @@
 package com.developerfromjokela.opencarwings
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import com.developerfromjokela.opencarwings.utils.PreferencesHelper
 import com.developerfromjokela.opencarwings.websocket.WSClient
@@ -16,11 +17,13 @@ class OpenCARWINGS: Application() {
 
     companion object {
         const val WS_BROADCAST = "com.developerfromjokela.opencarwings.WS_BROADCAST"
+        lateinit var context: OpenCARWINGS
     }
 
     lateinit var preferencesHelper: PreferencesHelper
 
     override fun onCreate() {
+        context = this
         FirebaseApp.initializeApp(this)
         MapsInitializer.initialize(this)
         this.preferencesHelper = PreferencesHelper(this)

@@ -74,6 +74,7 @@ data class CarUiState(
     val activeSegments: Int = 0,
     val carGear: Int = 0,
     val isCharging: Boolean = false,
+    val isChargingInterrupted: Boolean = false,
     val isRunning: Boolean = false,
     val isQuickCharging: Boolean = false,
     val isPluggedIn: Boolean = false,
@@ -581,6 +582,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
 
         // Determine car status
         val carStatus = when {
+            evInfo.chargingInterrupted == true -> application.getString(R.string.charging_interrupted)
             evInfo.quickCharging == true -> application.getString(R.string.quick_charging)
             evInfo.charging == true -> {
                 var estimate: Int? = null
@@ -667,6 +669,7 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
             rangeAcOff = "${acOffVal.toInt()} $acOffUnit",
             activeSegments = evInfo.chargeBars ?: 0,
             isCharging = evInfo.charging ?: false,
+            isChargingInterrupted = evInfo.chargingInterrupted ?: false,
             isRunning = evInfo.carRunning ?: false,
             carGear = evInfo.carGear ?: 0,
             isQuickCharging = evInfo.quickCharging ?: false,
@@ -719,9 +722,9 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
         return list
     }
 
-    private fun sendCommand(commandId: Int): Boolean {
+    private fun sendCommand(commandId: Int, data:Map<String, Any>?): Boolean {
         viewModelScope.launch {
-            val pendingCmd = ApiCommandCreateRequest(BigDecimal(commandId))
+            val pendingCmd = ApiCommandCreateRequest(BigDecimal(commandId), data)
             if (_uiState.value?.car?.sensitiveCommands?.contains(commandId) == true && _uiState.value?.car?.commandPinEnforced == true) {
                 // Show PIN
                 _uiState.value = _uiState.value?.copy(showPinPrompt = accountInfoState.value?.isCommandPinSet == true,
@@ -753,16 +756,16 @@ class MainViewModel(application: OpenCARWINGS, private val preferencesHelper: Pr
     private fun getQuickActions(car: Car): List<QuickAction> {
         val list = mutableListOf<QuickAction>()
         if (car.supportedCommands?.contains(7) == true)
-            list.add(UnlockQuickAction({ id: Int -> sendCommand(id)}))
+            list.add(UnlockQuickAction { id, data -> sendCommand(id, data) })
         if (car.supportedCommands?.contains(8) == true)
-            list.add(LockQuickAction({id: Int -> sendCommand(id)}))
+            list.add(LockQuickAction { id, data -> sendCommand(id, data) })
         if (car.supportedCommands?.contains(2) == true)
-            list.add(ChargingQuickAction({ id: Int -> sendCommand(id)}))
-        list.add(PlugQuickAction({ id: Int -> sendCommand(id)}))
+            list.add(ChargingQuickAction { id, data -> sendCommand(id, data) })
+        list.add(PlugQuickAction { id, data -> sendCommand(id, data) })
         if (car.supportedCommands?.contains(3) == true)
-            list.add(ClimateQuickAction({ id: Int -> sendCommand(id)}))
+            list.add(ClimateQuickAction { id, data -> sendCommand(id, data) })
         if (car.supportedCommands?.contains(11) == true)
-            list.add(HornLightQuickAction({ id: Int -> sendCommand(id)}))
+            list.add(HornLightQuickAction { id, data -> sendCommand(id, data) })
         return list
     }
 

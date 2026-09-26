@@ -3,7 +3,9 @@
     <string name="app_name">OpenCARWINGS</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Corrección de errores</li>
+            <li>Ahora puedes elegir la temperatura deseada al iniciar el aire acondicionado de forma remota</li>
+            <li>Se agregó un mensaje de interrupción de carga cuando se interrumpe la alimentación de CA</li>
+            <li>Anulación manual para las unidades</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Iniciar sesión</string>
@@ -170,4 +172,10 @@
     <string name="failure">Algo salió mal</string>
     <string name="cabin_temp">Cabina: %s %s</string>
     <string name="incomplete_info">Información incompleta</string>
+    <string name="unit_auto">Auto</string>
+    <string name="unit_imperial">Imperial</string>
+    <string name="unit_metric">Métrica</string>
+    <string name="unit_settings">Unidades</string>
+    <string name="app_version_format">Versión de la aplicación: %s</string>
+    <string name="charging_interrupted">Carga interrumpida</string>
 </resources>

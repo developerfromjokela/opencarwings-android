@@ -3,7 +3,9 @@
     <string name="telematics_sms" translatable="false">NISSAN_EVIT_TELEMATICS_CENTER</string>
     <string name="whats_new_content">
         <![CDATA[<ul>
-            <li>Fix bugs</li>
+            <li>You can now choose desired temperature, when remotely starting A/C</li>
+            <li>Added Charging Interruption message, when AC power is interrupted</li>
+            <li>Manual override for Units</li>
         </ul>]]>
     </string>
     <string name="fragment_login">Sign In</string>
@@ -171,4 +173,10 @@
     <string name="failure">Something went wrong</string>
     <string name="cabin_temp">Cabin: %s %s</string>
     <string name="incomplete_info">Incomplete information</string>
+    <string name="unit_auto">Auto</string>
+    <string name="unit_imperial">Imperial</string>
+    <string name="unit_metric">Metric</string>
+    <string name="unit_settings">Units</string>
+    <string name="app_version_format">App Version: %s</string>
+    <string name="charging_interrupted">Charging Interrupted</string>
 </resources>

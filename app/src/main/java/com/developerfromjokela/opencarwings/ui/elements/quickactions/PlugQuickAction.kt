@@ -7,7 +7,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 /**
  * Quick action handling climate control
  */
-class PlugQuickAction(callback: (commandId: Int) -> Boolean) :
+class PlugQuickAction(callback: (commandId: Int, data:Map<String, Any>?) -> Boolean) :
     QuickAction(ACTION_ID, R.drawable.ic_plug, callback,
         actionOnTint = com.google.android.material.R.attr.colorPrimaryContainer,
         actionOffTint = com.google.android.material.R.attr.colorSurfaceContainerLow,

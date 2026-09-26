@@ -7,7 +7,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 /**
  * Quick action handling climate control
  */
-class ChargingQuickAction(callback: (commandId: Int) -> Boolean) :
+class ChargingQuickAction(callback: (commandId: Int, data:Map<String, Any>?) -> Boolean) :
     QuickAction(ACTION_ID, R.drawable.ic_charge, callback,
         actionOnTint = androidx.appcompat.R.attr.colorPrimary,
         actionOffTint = com.google.android.material.R.attr.colorSurfaceContainerLow,
