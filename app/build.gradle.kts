@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -11,7 +12,7 @@ plugins {
 openApiGenerate {
     generatorName.set("kotlin")
     inputSpec.set("$rootDir/specs/opencarwings.json")
-    outputDir.set("$buildDir/generated")
+    outputDir.set(layout.buildDirectory.dir("generated").get().asFile.absolutePath)
     apiPackage.set("org.openapitools.client.apis")
     invokerPackage.set("org.openapitools.client.invoker")
     modelPackage.set("org.openapitools.client.models")
@@ -26,7 +27,7 @@ openApiGenerate {
 
 android {
     namespace = "com.developerfromjokela.opencarwings"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.developerfromjokela.opencarwings"
@@ -54,19 +55,13 @@ android {
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
         viewBinding = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
     }
     packaging {
         resources {
@@ -74,15 +69,21 @@ android {
         }
     }
 
-    kotlin.sourceSets["main"].kotlin {
-        srcDir("$buildDir/generated/src/main/kotlin")
-    }
+    sourceSets["main"].java.srcDir(layout.buildDirectory.dir("generated/src/main/kotlin").get().asFile)
     tasks.named("preBuild") {
         dependsOn(tasks.named("openApiGenerate"))
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 dependencies {
+
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.4.21"))
 
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
@@ -92,6 +93,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
@@ -115,6 +117,7 @@ dependencies {
     implementation("androidx.activity:activity:1.11.0")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     implementation("org.maplibre.gl:android-sdk:13.4.1")
+    implementation("io.github.sceneview:sceneview:4.76.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")

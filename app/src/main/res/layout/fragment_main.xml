@@ -94,8 +94,8 @@
                     <FrameLayout
                         android:id="@+id/carStatusRenderFrame"
                         android:layout_width="0dp"
-                        android:layout_height="150dp"
-                        android:layout_marginTop="32dp"
+                        android:layout_height="250dp"
+                        android:layout_marginTop="2dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/carStatus">
@@ -103,10 +103,17 @@
                         <ImageView
                             android:id="@+id/carStatusImage"
                             android:layout_width="match_parent"
-                            android:layout_height="150dp"
-                            android:layout_gravity="left"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"
                             android:visibility="visible"
                             app:srcCompat="@drawable/l_superblack" />
+
+                        <androidx.compose.ui.platform.ComposeView
+                            android:id="@+id/carComposeView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone" />
                     </FrameLayout>
 
 
@@ -125,7 +132,7 @@
                         android:id="@+id/iconRangeAcOn"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="4dp"
                         android:layout_marginEnd="64dp"
                         app:layout_constraintEnd_toStartOf="@+id/iconRangeAcOff"
                         app:layout_constraintTop_toBottomOf="@+id/carStatusRenderFrame"
@@ -136,7 +143,7 @@
                         android:id="@+id/iconRangeAcOff"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="4dp"
                         app:layout_constraintEnd_toEndOf="@+id/carStatusRenderFrame"
                         app:layout_constraintHorizontal_bias="0.63"
                         app:layout_constraintStart_toStartOf="@+id/carStatusRenderFrame"

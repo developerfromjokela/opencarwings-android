@@ -1,5 +1,9 @@
 package com.developerfromjokela.opencarwings.ui.main
 
+import com.developerfromjokela.opencarwings.ui.elements.Leaf3DCarView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.livedata.observeAsState
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.DialogInterface
@@ -51,6 +55,8 @@ import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.Qu
 import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoFragment.Companion.ARG_EVINFO
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_IS_ZE1
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_MODEL_ASSET
 import com.developerfromjokela.opencarwings.ui.main.location.LocationFragment.Companion.ARG_LOCATIONINFO
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsFragment.Companion.ARG_NOTIFICATIONS
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsListWrapper
@@ -114,8 +120,66 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    private fun dpToPx(dp: Int): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        resources.displayMetrics
+    ).toInt()
+
+    private fun applyCarRenderFrameLayout(isZE1: Boolean) {
+        val frameLp = binding.carStatusRenderFrame.layoutParams as? ViewGroup.MarginLayoutParams
+        val targetHeightPx = dpToPx(if (isZE1) 250 else 150)
+        val targetFrameTopPx = dpToPx(if (isZE1) 2 else 32)
+        if (frameLp != null && (frameLp.height != targetHeightPx || frameLp.topMargin != targetFrameTopPx)) {
+            frameLp.height = targetHeightPx
+            frameLp.topMargin = targetFrameTopPx
+            binding.carStatusRenderFrame.layoutParams = frameLp
+        }
+        val targetAcTopPx = dpToPx(if (isZE1) 4 else 16)
+        listOf(binding.iconRangeAcOn, binding.iconRangeAcOff).forEach { icon ->
+            val iconLp = icon.layoutParams as? ViewGroup.MarginLayoutParams
+            if (iconLp != null && iconLp.topMargin != targetAcTopPx) {
+                iconLp.topMargin = targetAcTopPx
+                icon.layoutParams = iconLp
+            }
+        }
+        binding.carComposeView.visibility = if (isZE1) View.VISIBLE else View.GONE
+        binding.carStatusImage.visibility = if (isZE1) View.GONE else View.VISIBLE
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.carComposeView.visibility = View.GONE
+        binding.carComposeView.setContent {
+            val uiState by viewModel.uiState.observeAsState()
+            val state = uiState ?: return@setContent
+            val modelAsset = state.car?.let { resolveVehicle3DModel(it).assetPath }
+            if (modelAsset != null) {
+                key(modelAsset) {
+                    val socPercent = (state.car.evInfo.socDisplay ?: state.car.evInfo.soc)?.toFloat()
+                        ?: ((state.activeSegments / 12f) * 100f)
+                    val isChargeTimerActive = state.car.timerCommands.any {
+                        it.enabled == true && it.commandType == 2
+                    }
+                    Leaf3DCarView(
+                        carColor = state.car.color?.value,
+                        modelAssetPath = modelAsset,
+                        isPluggedIn = state.isPluggedIn,
+                        isCharging = state.isCharging,
+                        isQuickCharging = state.isQuickCharging,
+                        isChargingInterrupted = state.isChargingInterrupted,
+                        isMoving = state.carGear != 0,
+                        isReverse = state.carGear == 2,
+                        isHeadlightsOn = state.isRunning,
+                        batterySocPercent = socPercent,
+                        isClimateOn = state.isAcOn && !state.isRunning,
+                        isChargeTimerActive = isChargeTimerActive
+                    )
+                }
+            }
+        }
+
         val menuHost: MenuHost = requireActivity()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             ViewCompat.setOnApplyWindowInsetsListener(requireActivity().findViewById<View>(android.R.id.content)) { _, insets ->
@@ -192,8 +256,12 @@ class MainFragment : Fragment() {
                 }
                 if (item.id == 6) {
                     findNavController().navigate(R.id.action_mainFragment_to_HealthFragment, Bundle().apply {
-                        putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(viewModel.uiState.value?.car?.vehHealth))
-                        putString(ARG_COLOR, viewModel.uiState.value?.car?.color?.value)
+                        val currentCar = viewModel.uiState.value?.car
+                        val model3d = currentCar?.let { resolveVehicle3DModel(it) } ?: Vehicle3DModel.NONE
+                        putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(currentCar?.vehHealth))
+                        putString(ARG_COLOR, currentCar?.color?.value)
+                        putBoolean(ARG_IS_ZE1, model3d == Vehicle3DModel.ZE1)
+                        putString(ARG_MODEL_ASSET, model3d.assetPath)
                     })
                 }
             }
@@ -299,63 +367,66 @@ class MainFragment : Fragment() {
             binding.carStatus.text = state.carStatus
             var layers = emptyList<Drawable>()
 
-            val isZE1 = state.car?.color?.value?.startsWith("l2_") == true
+            val use3D = state.car?.let { resolveVehicle3DModel(it).assetPath } != null
+            applyCarRenderFrameLayout(use3D)
 
-            state.carImageResId?.let {
-                ContextCompat.getDrawable(requireContext(), it)?.let {
-                    layers += it
-                }
-            }
+            if (!use3D) {
 
-            if (state.isRunning) {
-                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_hd else R.drawable.l_hd)?.let {
-                    layers += it
-                }
-            }
-
-            if (state.isPluggedIn || state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_cp else R.drawable.l_cp)?.let {
-                    layers += it
-                }
-                if (!state.isCharging && !state.isQuickCharging) {
-                    ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_cw else R.drawable.l_cw)?.let {
+                state.carImageResId?.let {
+                    ContextCompat.getDrawable(requireContext(), it)?.let {
                         layers += it
                     }
                 }
-            }
 
-            if (state.isChargingInterrupted && !state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_ci else R.drawable.l_ci)?.let {
-                    layers += it
+                if (state.isRunning) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_hd)?.let {
+                        layers += it
+                    }
                 }
-            }
 
-            if (state.isCharging && !state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_chg else R.drawable.l_chg)?.let {
-                    layers += it
+                if (state.isPluggedIn || state.isQuickCharging) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_cp)?.let {
+                        layers += it
+                    }
+                    if (!state.isCharging && !state.isQuickCharging) {
+                        ContextCompat.getDrawable(requireContext(), R.drawable.l_cw)?.let {
+                            layers += it
+                        }
+                    }
                 }
-            }
 
-            if (state.isCharging && state.isQuickCharging) {
-                ContextCompat.getDrawable(requireContext(), if (isZE1) R.drawable.l2_q_chg else R.drawable.l_q_chg)?.let {
-                    layers += it
+                if (state.isChargingInterrupted && !state.isQuickCharging) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_ci)?.let {
+                        layers += it
+                    }
                 }
-            }
 
-            if (state.carGear != 0) {
-                var animId = R.drawable.l_tireanim;
-                if (state.car?.color?.value?.startsWith("env200") == true)
-                    animId = R.drawable.env200_tireanim
-                if (state.car?.color?.value?.startsWith("l2_") == true)
-                    animId = R.drawable.l2_tireanim
-                val anim =
-                    ContextCompat.getDrawable(requireContext(), animId) as AnimationDrawable
-                layers += anim
-                anim.start()
-            }
+                if (state.isCharging && !state.isQuickCharging) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_chg)?.let {
+                        layers += it
+                    }
+                }
 
-            val newDrawable = LayerDrawable(layers.toTypedArray())
-            binding.carStatusImage.setImageDrawable(newDrawable)
+                if (state.isCharging && state.isQuickCharging) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.l_q_chg)?.let {
+                        layers += it
+                    }
+                }
+
+                if (state.carGear != 0) {
+                    var animId = R.drawable.l_tireanim;
+                    if (state.car?.color?.value?.startsWith("env200") == true)
+                        animId = R.drawable.env200_tireanim
+                    val anim =
+                        ContextCompat.getDrawable(requireContext(), animId) as AnimationDrawable
+                    layers += anim
+                    anim.start()
+                }
+
+                binding.carStatusImage.setImageDrawable(
+                    if (layers.isNotEmpty()) LayerDrawable(layers.toTypedArray()) else null
+                )
+            }
             binding.rangeAcOn.text = state.rangeAcOn
             binding.rangeAcOff.text = state.rangeAcOff
             binding.leafSegment.setActiveSegments(state.activeSegments)

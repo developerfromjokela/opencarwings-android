@@ -11,10 +11,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.ui.elements.Leaf3DTopDownCarView
+import com.developerfromjokela.opencarwings.ui.main.Vehicle3DModel
+import com.developerfromjokela.opencarwings.ui.main.resolveVehicle3DModel
 import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
@@ -35,6 +41,10 @@ class HealthTPMSFragment : Fragment() {
 
     private var healthInfo: VehicleHealthInfo? = null
     private var color: String = ""
+    private var isZe1: Boolean = false
+    private var modelAsset: String? = null
+    private val carColorState = mutableStateOf("")
+    private val modelAssetState = mutableStateOf<String?>(null)
 
     private lateinit var tpmsFR: TextView
     private lateinit var tpmsFL: TextView
@@ -46,6 +56,7 @@ class HealthTPMSFragment : Fragment() {
 
     private lateinit var tpmsLight: ImageView
     private lateinit var carOverlay: ImageView
+    private lateinit var carOverlayCompose: ComposeView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +66,20 @@ class HealthTPMSFragment : Fragment() {
                 it.getString(ARG_HEALTHINFO)
                     ?.let { it1 -> WSClient.moshi.adapter(VehicleHealthInfo::class.java).fromJson(it1) }
             color = it.getString(ARG_COLOR, "")
+            isZe1 = if (it.containsKey(ARG_IS_ZE1)) {
+                it.getBoolean(ARG_IS_ZE1, false)
+            } else {
+                color.lowercase().startsWith("l2_")
+            }
+            modelAsset = when {
+                it.containsKey(ARG_MODEL_ASSET) -> it.getString(ARG_MODEL_ASSET)
+                isZe1 -> Vehicle3DModel.ZE1.assetPath
+                color.lowercase().startsWith("l_") -> Vehicle3DModel.ZE0.assetPath
+                else -> null
+            }
         }
+        carColorState.value = color
+        modelAssetState.value = modelAsset
     }
 
     override fun onCreateView(
@@ -73,11 +97,23 @@ class HealthTPMSFragment : Fragment() {
         lastUpdated = view.findViewById(R.id.tpmsLastUpdated)
         tpmsLight = view.findViewById(R.id.tpmsWarnIcon)
         carOverlay = view.findViewById(R.id.carOverlay)
+        carOverlayCompose = view.findViewById(R.id.carOverlayCompose)
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        carOverlayCompose.setContent {
+            val activeModel = modelAssetState.value
+            if (activeModel != null) {
+                key(activeModel) {
+                    Leaf3DTopDownCarView(
+                        carColor = carColorState.value,
+                        modelAssetPath = activeModel
+                    )
+                }
+            }
+        }
         updateUIState()
     }
 
@@ -100,24 +136,34 @@ class HealthTPMSFragment : Fragment() {
             ?: "---"
 
         tpmsLight.visibility = if (healthInfo?.tpmsLight == true) View.VISIBLE else View.INVISIBLE
-        val carImageResId = when (color) {
-            "l_coulisred" -> R.drawable.o_l_coulisred
-            "l_deepblue" -> R.drawable.o_l_deepblue
-            "l_forgedbronze" -> R.drawable.o_l_forgedbronze
-            "l_gunmetallic" -> R.drawable.o_l_gunmetallic
-            "l_pearlwhite" -> R.drawable.o_l_pearlwhite
-            "l_planetblue" -> R.drawable.o_l_planetblue
-            "l_superblack" -> R.drawable.o_l_superblack
-            "l2_pearlwhite" -> R.drawable.o_l2_pearlwhite
-            "l2_gunmetallic" -> R.drawable.o_l2_gunmetallic
-            "l2_jadefrostmetallic" -> R.drawable.o_l2_jadefrostmetallic
-            "l2_superblack" -> R.drawable.o_l2_superblack
-            "l2_vividblue" -> R.drawable.o_l2_vividblue
-            "env200_white" -> R.drawable.o_env200_white
-            else -> null
-        }
+        carColorState.value = color
+        modelAssetState.value = modelAsset
+        if (modelAsset != null) {
+            carOverlayCompose.visibility = View.VISIBLE
+            // Keep INVISIBLE (not GONE) so ConstraintLayout chains/anchors to carOverlay stay intact
+            carOverlay.visibility = View.INVISIBLE
+        } else {
+            carOverlayCompose.visibility = View.GONE
+            carOverlay.visibility = View.VISIBLE
+            val carImageResId = when (color) {
+                "l_coulisred" -> R.drawable.o_l_coulisred
+                "l_deepblue" -> R.drawable.o_l_deepblue
+                "l_forgedbronze" -> R.drawable.o_l_forgedbronze
+                "l_gunmetallic" -> R.drawable.o_l_gunmetallic
+                "l_pearlwhite" -> R.drawable.o_l_pearlwhite
+                "l_planetblue" -> R.drawable.o_l_planetblue
+                "l_superblack" -> R.drawable.o_l_superblack
+                "l2_pearlwhite" -> R.drawable.o_l2_pearlwhite
+                "l2_gunmetallic" -> R.drawable.o_l2_gunmetallic
+                "l2_jadefrostmetallic" -> R.drawable.o_l2_jadefrostmetallic
+                "l2_superblack" -> R.drawable.o_l2_superblack
+                "l2_vividblue" -> R.drawable.o_l2_vividblue
+                "env200_white" -> R.drawable.o_env200_white
+                else -> null
+            }
 
-        carImageResId?.let { carOverlay.setImageResource(it) }
+            carImageResId?.let { carOverlay.setImageResource(it) }
+        }
     }
 
 
@@ -141,6 +187,9 @@ class HealthTPMSFragment : Fragment() {
                                 }?.let {
                                     healthInfo = it.car.vehHealth
                                     color = it.car.color?.value ?: ""
+                                    val resolved = resolveVehicle3DModel(it.car)
+                                    isZe1 = resolved == Vehicle3DModel.ZE1
+                                    modelAsset = resolved.assetPath
                                     updateUIState()
                                 }
                             }
@@ -180,18 +229,27 @@ class HealthTPMSFragment : Fragment() {
     companion object {
         const val ARG_HEALTHINFO = "healthinfo"
         const val ARG_COLOR = "color"
+        const val ARG_IS_ZE1 = "is_ze1"
+        const val ARG_MODEL_ASSET = "model_asset"
 
         private val pressureFormatter =
             DecimalFormat("0.##", DecimalFormatSymbols.getInstance())
 
         @JvmStatic
-        fun newInstance(healthInfo: VehicleHealthInfo?, color: String) =
+        fun newInstance(
+            healthInfo: VehicleHealthInfo?,
+            color: String,
+            isZe1: Boolean = color.lowercase().startsWith("l2_"),
+            modelAsset: String? = if (isZe1) Vehicle3DModel.ZE1.assetPath else if (color.lowercase().startsWith("l_")) Vehicle3DModel.ZE0.assetPath else null
+        ) =
             HealthTPMSFragment().apply {
                 arguments = Bundle().apply {
                     healthInfo?.let {
                         putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(it))
-                        putString(ARG_COLOR, color)
                     }
+                    putString(ARG_COLOR, color)
+                    putBoolean(ARG_IS_ZE1, isZe1)
+                    putString(ARG_MODEL_ASSET, modelAsset)
                 }
             }
     }

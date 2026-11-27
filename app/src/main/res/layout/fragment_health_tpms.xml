@@ -22,6 +22,16 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@drawable/o_l2_superblack" />
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/carOverlayCompose"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/carOverlay"
+        app:layout_constraintEnd_toEndOf="@+id/carOverlay"
+        app:layout_constraintStart_toStartOf="@+id/carOverlay"
+        app:layout_constraintTop_toTopOf="@+id/carOverlay" />
+
     <ImageView
         android:id="@+id/tpmsWarnIcon"
         android:layout_width="28dp"
