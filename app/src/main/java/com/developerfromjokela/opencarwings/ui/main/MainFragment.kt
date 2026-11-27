@@ -54,6 +54,7 @@ import com.developerfromjokela.opencarwings.ui.elements.quickactions.adapters.Qu
 import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoFragment.Companion.ARG_EVINFO
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_IS_ZE1
 import com.developerfromjokela.opencarwings.ui.main.location.LocationFragment.Companion.ARG_LOCATIONINFO
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsFragment.Companion.ARG_NOTIFICATIONS
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsListWrapper
@@ -117,9 +118,31 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
-    private fun isZe1Vehicle(car: Car): Boolean {
-        return car.color?.value?.startsWith("l2_") == true ||
-            (car.tcuVer == "TCU033" && !car.vin.startsWith("VZK"))
+    private fun dpToPx(dp: Int): Int = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        resources.displayMetrics
+    ).toInt()
+
+    private fun applyCarRenderFrameLayout(isZE1: Boolean) {
+        val frameLp = binding.carStatusRenderFrame.layoutParams as? ViewGroup.MarginLayoutParams
+        val targetHeightPx = dpToPx(if (isZE1) 250 else 150)
+        val targetFrameTopPx = dpToPx(if (isZE1) 2 else 32)
+        if (frameLp != null && (frameLp.height != targetHeightPx || frameLp.topMargin != targetFrameTopPx)) {
+            frameLp.height = targetHeightPx
+            frameLp.topMargin = targetFrameTopPx
+            binding.carStatusRenderFrame.layoutParams = frameLp
+        }
+        val targetAcTopPx = dpToPx(if (isZE1) 4 else 16)
+        listOf(binding.iconRangeAcOn, binding.iconRangeAcOff).forEach { icon ->
+            val iconLp = icon.layoutParams as? ViewGroup.MarginLayoutParams
+            if (iconLp != null && iconLp.topMargin != targetAcTopPx) {
+                iconLp.topMargin = targetAcTopPx
+                icon.layoutParams = iconLp
+            }
+        }
+        binding.carComposeView.visibility = if (isZE1) View.VISIBLE else View.GONE
+        binding.carStatusImage.visibility = if (isZE1) View.GONE else View.VISIBLE
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -228,8 +251,10 @@ class MainFragment : Fragment() {
                 }
                 if (item.id == 6) {
                     findNavController().navigate(R.id.action_mainFragment_to_HealthFragment, Bundle().apply {
-                        putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(viewModel.uiState.value?.car?.vehHealth))
-                        putString(ARG_COLOR, viewModel.uiState.value?.car?.color?.value)
+                        val currentCar = viewModel.uiState.value?.car
+                        putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(currentCar?.vehHealth))
+                        putString(ARG_COLOR, currentCar?.color?.value)
+                        putBoolean(ARG_IS_ZE1, currentCar?.let { isZe1Vehicle(it) } == true)
                     })
                 }
             }
@@ -336,13 +361,9 @@ class MainFragment : Fragment() {
             var layers = emptyList<Drawable>()
 
             val isZE1 = state.car?.let { isZe1Vehicle(it) } == true
+            applyCarRenderFrameLayout(isZE1)
 
-            if (isZE1) {
-                binding.carComposeView.visibility = View.VISIBLE
-                binding.carStatusImage.visibility = View.GONE
-            } else {
-                binding.carComposeView.visibility = View.GONE
-                binding.carStatusImage.visibility = View.VISIBLE
+            if (!isZE1) {
 
                 state.carImageResId?.let {
                     ContextCompat.getDrawable(requireContext(), it)?.let {
@@ -395,8 +416,9 @@ class MainFragment : Fragment() {
                     anim.start()
                 }
 
-                val newDrawable = LayerDrawable(layers.toTypedArray())
-                binding.carStatusImage.setImageDrawable(newDrawable)
+                binding.carStatusImage.setImageDrawable(
+                    if (layers.isNotEmpty()) LayerDrawable(layers.toTypedArray()) else null
+                )
             }
             binding.rangeAcOn.text = state.rangeAcOn
             binding.rangeAcOff.text = state.rangeAcOff

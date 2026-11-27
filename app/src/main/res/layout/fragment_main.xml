@@ -105,6 +105,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="center"
+                            android:scaleType="fitCenter"
                             android:visibility="visible"
                             app:srcCompat="@drawable/l_superblack" />
 
@@ -112,7 +113,7 @@
                             android:id="@+id/carComposeView"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:visibility="visible" />
+                            android:visibility="gone" />
                     </FrameLayout>
 
 

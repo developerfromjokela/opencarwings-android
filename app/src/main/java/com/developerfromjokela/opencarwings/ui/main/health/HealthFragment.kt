@@ -14,6 +14,7 @@ import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.ui.main.health.tabs.dtc.HealthDTCFragment
 import com.developerfromjokela.opencarwings.ui.main.health.tabs.tpms.HealthTPMSFragment
+import com.developerfromjokela.opencarwings.ui.main.isZe1Vehicle
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -31,6 +32,7 @@ class HealthFragment : Fragment() {
     private lateinit var healthNavigationView: BottomNavigationView
 
     private var color = ""
+    private var isZe1 = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +42,11 @@ class HealthFragment : Fragment() {
                 it.getString(ARG_HEALTHINFO)
                     ?.let { it1 -> WSClient.moshi.adapter(VehicleHealthInfo::class.java).fromJson(it1) }
             color = it.getString(ARG_COLOR, "")
+            isZe1 = if (it.containsKey(ARG_IS_ZE1)) {
+                it.getBoolean(ARG_IS_ZE1, false)
+            } else {
+                color.lowercase().startsWith("l2_")
+            }
         }
     }
 
@@ -51,7 +58,7 @@ class HealthFragment : Fragment() {
 
         healthNavigationView = view.findViewById(R.id.healthNavigation)
         healthNavigationView.setOnItemSelectedListener(selectedListener)
-        commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color))
+        commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1))
         return view
     }
 
@@ -62,7 +69,7 @@ class HealthFragment : Fragment() {
                     commitNewFragment(HealthDTCFragment.newInstance(healthInfo))
                 }
                 R.id.health_tpms -> {
-                    commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color))
+                    commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1))
                 }
             }
             return@OnItemSelectedListener true
@@ -92,6 +99,7 @@ class HealthFragment : Fragment() {
                                 }?.let {
                                     healthInfo = it.car.vehHealth
                                     color = it.car.color?.value ?: ""
+                                    isZe1 = isZe1Vehicle(it.car)
                                 }
                             }
                         }
@@ -130,13 +138,15 @@ class HealthFragment : Fragment() {
     companion object {
         const val ARG_HEALTHINFO = "healthinfo"
         const val ARG_COLOR = "color"
+        const val ARG_IS_ZE1 = "is_ze1"
 
         @JvmStatic
-        fun newInstance(evInfo: VehicleHealthInfo, color: String) =
+        fun newInstance(evInfo: VehicleHealthInfo, color: String, isZe1: Boolean = color.lowercase().startsWith("l2_")) =
             HealthFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(evInfo))
                     putString(ARG_COLOR, color)
+                    putBoolean(ARG_IS_ZE1, isZe1)
                 }
             }
     }

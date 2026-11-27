@@ -19,6 +19,7 @@ import com.google.android.filament.Material
 import com.google.android.filament.MaterialInstance
 import com.google.android.filament.View as FilamentView
 import io.github.sceneview.SceneView
+import io.github.sceneview.SurfaceType
 import io.github.sceneview.gesture.CameraGestureDetector
 import io.github.sceneview.material.materialOrNull
 import io.github.sceneview.math.Color
@@ -28,6 +29,7 @@ import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCameraManipulator
+import io.github.sceneview.rememberCameraNode
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberEnvironment
 import io.github.sceneview.rememberEnvironmentLoader
@@ -276,6 +278,31 @@ private fun extractRigHandles(modelNode: ModelNode): Ze1RigHandles {
     )
 }
 
+private fun applyZe1PaintMaterials(rig: Ze1RigHandles, carColor: String?) {
+    val paint = resolveZe1Paint(carColor)
+    rig.carPaintMats.forEach {
+        it.setBaseColorRgba(paint.body)
+        it.setFloatParam("metallicFactor", paint.metallic)
+        it.setFloatParam("roughnessFactor", paint.roughness)
+        it.setFloatParam("clearCoatFactor", paint.clearcoat)
+        it.setFloatParam("clearCoatRoughnessFactor", paint.clearcoatRoughness)
+    }
+    rig.roofAndMirrorMats.forEach {
+        it.setBaseColorRgba(paint.roofAndMirrors)
+        if (paint.isTwoToneBlackRoof) {
+            it.setFloatParam("metallicFactor", 0.25f)
+            it.setFloatParam("roughnessFactor", 0.42f)
+            it.setFloatParam("clearCoatFactor", 0.88f)
+            it.setFloatParam("clearCoatRoughnessFactor", 0.045f)
+        } else {
+            it.setFloatParam("metallicFactor", paint.metallic)
+            it.setFloatParam("roughnessFactor", paint.roughness)
+            it.setFloatParam("clearCoatFactor", paint.clearcoat)
+            it.setFloatParam("clearCoatRoughnessFactor", paint.clearcoatRoughness)
+        }
+    }
+}
+
 @Composable
 fun Leaf3DCarView(
     modifier: Modifier = Modifier,
@@ -321,8 +348,8 @@ fun Leaf3DCarView(
 
     var cameraResetKey by remember { mutableIntStateOf(0) }
     val cameraManipulator = rememberCameraManipulator(
-        orbitRadius = 1.01f,
-        targetPosition = Position(x = 0.135f, y = -0.118f, z = 0f),
+        orbitHomePosition = Position(x = 0.049f, y = 0.257f, z = 1.012f),
+        targetPosition = Position(x = 0.155f, y = -0.134f, z = 0f),
         key = cameraResetKey
     ).apply {
         (this as? CameraGestureDetector.DefaultCameraManipulator)?.isDoubleTapZoomEnabled = false
@@ -352,28 +379,7 @@ fun Leaf3DCarView(
         isChargeTimerActive
     ) {
         val currentRig = rig ?: return@LaunchedEffect
-        val paint = resolveZe1Paint(carColor)
-        currentRig.carPaintMats.forEach {
-            it.setBaseColorRgba(paint.body)
-            it.setFloatParam("metallicFactor", paint.metallic)
-            it.setFloatParam("roughnessFactor", paint.roughness)
-            it.setFloatParam("clearCoatFactor", paint.clearcoat)
-            it.setFloatParam("clearCoatRoughnessFactor", paint.clearcoatRoughness)
-        }
-        currentRig.roofAndMirrorMats.forEach {
-            it.setBaseColorRgba(paint.roofAndMirrors)
-            if (paint.isTwoToneBlackRoof) {
-                it.setFloatParam("metallicFactor", 0.25f)
-                it.setFloatParam("roughnessFactor", 0.42f)
-                it.setFloatParam("clearCoatFactor", 0.88f)
-                it.setFloatParam("clearCoatRoughnessFactor", 0.045f)
-            } else {
-                it.setFloatParam("metallicFactor", paint.metallic)
-                it.setFloatParam("roughnessFactor", paint.roughness)
-                it.setFloatParam("clearCoatFactor", paint.clearcoat)
-                it.setFloatParam("clearCoatRoughnessFactor", paint.clearcoatRoughness)
-            }
-        }
+        applyZe1PaintMaterials(currentRig, carColor)
 
         val lightsActive = isHeadlightsOn || isMoving
         val dashLedActive = isCharging || isQuickCharging || isClimateOn || isChargeTimerActive || isChargeDoorOpen
@@ -699,6 +705,81 @@ fun Leaf3DCarView(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun Leaf3DTopDownCarView(
+    modifier: Modifier = Modifier,
+    carColor: String? = null
+) {
+    val engine = rememberEngine()
+    val view = rememberView(engine)
+    val modelLoader = rememberModelLoader(engine)
+    val environmentLoader = rememberEnvironmentLoader(engine)
+    val renderInvalidator = rememberRenderInvalidator()
+    val modelInstance = rememberModelInstance(modelLoader, "models/ze1.glb")
+    var rig by remember { mutableStateOf<Ze1RigHandles?>(null) }
+
+    val baseEnvironment = rememberEnvironment(environmentLoader, isOpaque = false)
+    val environment = remember(baseEnvironment) {
+        baseEnvironment.apply { indirectLight?.intensity = 16_000f }
+    }
+    val mainLightNode = rememberMainLightNode(engine) {
+        intensity = 30_000f
+        lightDirection = Direction(0.28f, -0.35f, -0.89f)
+    }
+    val fillLightNode = rememberFillLightNode(engine) {
+        intensity = 12_000f
+        lightDirection = Direction(-0.45f, 0.25f, -0.86f)
+    }
+    val cameraNode = rememberCameraNode(engine) {
+        focalLength = 65.0
+        position = Position(x = 0f, y = 0f, z = 3.05f)
+        lookAt(Position(x = 0f, y = 0f, z = 0f))
+    }
+
+    LaunchedEffect(rig, carColor) {
+        val currentRig = rig ?: return@LaunchedEffect
+        applyZe1PaintMaterials(currentRig, carColor)
+        view.bloomOptions = view.bloomOptions.apply {
+            enabled = false
+        }
+        renderInvalidator.requestRender()
+    }
+
+    SceneView(
+        modifier = modifier.fillMaxSize(),
+        surfaceType = SurfaceType.TextureSurface,
+        engine = engine,
+        view = view,
+        modelLoader = modelLoader,
+        environmentLoader = environmentLoader,
+        renderInvalidator = renderInvalidator,
+        isOpaque = false,
+        autoCenterContent = true,
+        autoFitContent = false,
+        environment = environment,
+        mainLightNode = mainLightNode,
+        fillLightNode = fillLightNode,
+        cameraNode = cameraNode,
+        cameraManipulator = null
+    ) {
+        modelInstance?.let { instance ->
+            ModelNode(
+                modelInstance = instance,
+                autoAnimate = false,
+                scaleToUnits = 1.0f,
+                centerOrigin = Position(x = 0f, y = 0f, z = 0f),
+                rotation = Rotation(x = 90f, y = 0f, z = 180f),
+                apply = {
+                    val handles = extractRigHandles(this)
+                    handles.plugAcNode?.isVisible = false
+                    handles.plugDcNode?.isVisible = false
+                    rig = handles
+                }
+            )
         }
     }
 }
