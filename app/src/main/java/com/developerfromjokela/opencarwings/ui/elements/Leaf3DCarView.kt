@@ -111,6 +111,91 @@ private fun resolveZe1Paint(carColor: String?): Ze1PaintSpec {
                 clearcoatRoughness = 0.08f
             )
         }
+        // 1st-gen LEAF ZE0 / AZE0 monotone OEM paints
+        "l_coulisred" -> {
+            val red = floatArrayOf(0.360f, 0.024f, 0.032f, 1.0f)
+            Ze1PaintSpec(
+                body = red,
+                roofAndMirrors = red,
+                isTwoToneBlackRoof = false,
+                metallic = 0.72f,
+                roughness = 0.88f,
+                clearcoat = 0.62f,
+                clearcoatRoughness = 0.09f
+            )
+        }
+        "l_deepblue" -> {
+            val blue = floatArrayOf(0.035f, 0.145f, 0.440f, 1.0f)
+            Ze1PaintSpec(
+                body = blue,
+                roofAndMirrors = blue,
+                isTwoToneBlackRoof = false,
+                metallic = 0.80f,
+                roughness = 0.90f,
+                clearcoat = 0.60f,
+                clearcoatRoughness = 0.10f
+            )
+        }
+        "l_forgedbronze" -> {
+            val bronze = floatArrayOf(0.215f, 0.140f, 0.105f, 1.0f)
+            Ze1PaintSpec(
+                body = bronze,
+                roofAndMirrors = bronze,
+                isTwoToneBlackRoof = false,
+                metallic = 0.78f,
+                roughness = 0.90f,
+                clearcoat = 0.60f,
+                clearcoatRoughness = 0.10f
+            )
+        }
+        "l_gunmetallic" -> {
+            val gun = floatArrayOf(0.210f, 0.235f, 0.275f, 1.0f)
+            Ze1PaintSpec(
+                body = gun,
+                roofAndMirrors = gun,
+                isTwoToneBlackRoof = false,
+                metallic = 0.88f,
+                roughness = 0.96f,
+                clearcoat = 0.58f,
+                clearcoatRoughness = 0.10f
+            )
+        }
+        "l_pearlwhite" -> {
+            val pearl = floatArrayOf(0.880f, 0.900f, 0.900f, 1.0f)
+            Ze1PaintSpec(
+                body = pearl,
+                roofAndMirrors = pearl,
+                isTwoToneBlackRoof = false,
+                metallic = 0.26f,
+                roughness = 0.72f,
+                clearcoat = 0.64f,
+                clearcoatRoughness = 0.10f
+            )
+        }
+        "l_planetblue" -> {
+            val planet = floatArrayOf(0.080f, 0.340f, 0.560f, 1.0f)
+            Ze1PaintSpec(
+                body = planet,
+                roofAndMirrors = planet,
+                isTwoToneBlackRoof = false,
+                metallic = 0.68f,
+                roughness = 0.86f,
+                clearcoat = 0.60f,
+                clearcoatRoughness = 0.10f
+            )
+        }
+        "l_superblack" -> {
+            val black = floatArrayOf(0.024f, 0.026f, 0.032f, 1.0f)
+            Ze1PaintSpec(
+                body = black,
+                roofAndMirrors = black,
+                isTwoToneBlackRoof = false,
+                metallic = 0.50f,
+                roughness = 0.82f,
+                clearcoat = 0.70f,
+                clearcoatRoughness = 0.08f
+            )
+        }
         else -> Ze1PaintSpec(
             body = floatArrayOf(0.90f, 0.92f, 0.94f, 1.0f),
             roofAndMirrors = GLOSS_BLACK,
@@ -307,6 +392,7 @@ private fun applyZe1PaintMaterials(rig: Ze1RigHandles, carColor: String?) {
 fun Leaf3DCarView(
     modifier: Modifier = Modifier,
     carColor: String? = null,
+    modelAssetPath: String = "models/ze1.glb",
     isPluggedIn: Boolean = false,
     isCharging: Boolean = false,
     isQuickCharging: Boolean = false,
@@ -323,8 +409,9 @@ fun Leaf3DCarView(
     val modelLoader = rememberModelLoader(engine)
     val environmentLoader = rememberEnvironmentLoader(engine)
     val renderInvalidator = rememberRenderInvalidator()
-    val modelInstance = rememberModelInstance(modelLoader, "models/ze1.glb")
-    var rig by remember { mutableStateOf<Ze1RigHandles?>(null) }
+    val modelInstance = rememberModelInstance(modelLoader, modelAssetPath)
+    var rig by remember(modelAssetPath) { mutableStateOf<Ze1RigHandles?>(null) }
+    val isZe0 = modelAssetPath.contains("ze0", ignoreCase = true)
 
     val isChargeDoorOpen = isPluggedIn || isCharging || isQuickCharging || isChargingInterrupted
     val chargingSequence by animateFloatAsState(
@@ -411,10 +498,16 @@ fun Leaf3DCarView(
         }
         currentRig.headlightDrlMats.forEach {
             if (lightsActive) {
-                it.setBaseColorRgba(floatArrayOf(0.84f, 0.90f, 0.96f, 1.0f))
-                it.setEmissiveHdr(0.84f, 0.92f, 1.0f, 4.5f)
+                if (isZe0) {
+                    it.setBaseColorRgba(floatArrayOf(0.55f, 0.86f, 1.0f, 1.0f))
+                    it.setEmissiveHdr(0.45f, 0.82f, 1.0f, 6.0f)
+                } else {
+                    it.setBaseColorRgba(floatArrayOf(0.84f, 0.90f, 0.96f, 1.0f))
+                    it.setEmissiveHdr(0.84f, 0.92f, 1.0f, 4.5f)
+                }
             } else {
-                it.setBaseColorRgba(floatArrayOf(0.62f, 0.66f, 0.72f, 1.0f))
+                val base = if (isZe0) floatArrayOf(0.22f, 0.56f, 0.94f, 1.0f) else floatArrayOf(0.62f, 0.66f, 0.72f, 1.0f)
+                it.setBaseColorRgba(base)
                 it.setEmissiveHdr(0f, 0f, 0f, 1.0f)
             }
         }
@@ -641,7 +734,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 16_000f else 0f,
-                    position = Position(x = -0.68f, y = 0.72f, z = 1.98f),
+                    position = if (isZe0) Position(x = -0.66f, y = 0.85f, z = 1.75f) else Position(x = -0.68f, y = 0.72f, z = 1.98f),
                     direction = Direction(x = 0.16f, y = -0.45f, z = 0.88f),
                     color = Color(0.88f, 0.95f, 1.0f, 1.0f),
                     apply = {
@@ -652,7 +745,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 16_000f else 0f,
-                    position = Position(x = 0.68f, y = 0.72f, z = 1.98f),
+                    position = if (isZe0) Position(x = 0.66f, y = 0.85f, z = 1.75f) else Position(x = 0.68f, y = 0.72f, z = 1.98f),
                     direction = Direction(x = -0.16f, y = -0.45f, z = 0.88f),
                     color = Color(0.88f, 0.95f, 1.0f, 1.0f),
                     apply = {
@@ -663,7 +756,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 11_000f else 0f,
-                    position = Position(x = -0.72f, y = 0.37f, z = 1.94f),
+                    position = if (isZe0) Position(x = -0.73f, y = 0.40f, z = 1.96f) else Position(x = -0.72f, y = 0.37f, z = 1.94f),
                     direction = Direction(x = -0.08f, y = -0.35f, z = 0.93f),
                     color = Color(1.0f, 0.74f, 0.34f, 1.0f),
                     apply = {
@@ -674,7 +767,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 11_000f else 0f,
-                    position = Position(x = 0.72f, y = 0.37f, z = 1.94f),
+                    position = if (isZe0) Position(x = 0.73f, y = 0.40f, z = 1.96f) else Position(x = 0.72f, y = 0.37f, z = 1.94f),
                     direction = Direction(x = 0.08f, y = -0.35f, z = 0.93f),
                     color = Color(1.0f, 0.74f, 0.34f, 1.0f),
                     apply = {
@@ -685,7 +778,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 12_000f else 0f,
-                    position = Position(x = -0.78f, y = 1.02f, z = -1.96f),
+                    position = if (isZe0) Position(x = -0.68f, y = 1.16f, z = -1.72f) else Position(x = -0.78f, y = 1.02f, z = -1.96f),
                     direction = Direction(x = -0.12f, y = -0.62f, z = -0.77f),
                     color = Color(1.0f, 0.045f, 0.008f, 1.0f),
                     apply = {
@@ -696,7 +789,7 @@ fun Leaf3DCarView(
                 LightNode(
                     type = LightManager.Type.SPOT,
                     intensity = if (lampLightsActive) 12_000f else 0f,
-                    position = Position(x = 0.78f, y = 1.02f, z = -1.96f),
+                    position = if (isZe0) Position(x = 0.68f, y = 1.16f, z = -1.72f) else Position(x = 0.78f, y = 1.02f, z = -1.96f),
                     direction = Direction(x = 0.12f, y = -0.62f, z = -0.77f),
                     color = Color(1.0f, 0.045f, 0.008f, 1.0f),
                     apply = {
@@ -712,15 +805,16 @@ fun Leaf3DCarView(
 @Composable
 fun Leaf3DTopDownCarView(
     modifier: Modifier = Modifier,
-    carColor: String? = null
+    carColor: String? = null,
+    modelAssetPath: String = "models/ze1.glb"
 ) {
     val engine = rememberEngine()
     val view = rememberView(engine)
     val modelLoader = rememberModelLoader(engine)
     val environmentLoader = rememberEnvironmentLoader(engine)
     val renderInvalidator = rememberRenderInvalidator()
-    val modelInstance = rememberModelInstance(modelLoader, "models/ze1.glb")
-    var rig by remember { mutableStateOf<Ze1RigHandles?>(null) }
+    val modelInstance = rememberModelInstance(modelLoader, modelAssetPath)
+    var rig by remember(modelAssetPath) { mutableStateOf<Ze1RigHandles?>(null) }
 
     val baseEnvironment = rememberEnvironment(environmentLoader, isOpaque = false)
     val environment = remember(baseEnvironment) {

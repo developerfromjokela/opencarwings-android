@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
@@ -18,7 +19,8 @@ import androidx.fragment.app.Fragment
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
 import com.developerfromjokela.opencarwings.ui.elements.Leaf3DTopDownCarView
-import com.developerfromjokela.opencarwings.ui.main.isZe1Vehicle
+import com.developerfromjokela.opencarwings.ui.main.Vehicle3DModel
+import com.developerfromjokela.opencarwings.ui.main.resolveVehicle3DModel
 import com.developerfromjokela.opencarwings.utils.LocaleUnitUtils
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
@@ -40,8 +42,9 @@ class HealthTPMSFragment : Fragment() {
     private var healthInfo: VehicleHealthInfo? = null
     private var color: String = ""
     private var isZe1: Boolean = false
+    private var modelAsset: String? = null
     private val carColorState = mutableStateOf("")
-    private val isZe1State = mutableStateOf(false)
+    private val modelAssetState = mutableStateOf<String?>(null)
 
     private lateinit var tpmsFR: TextView
     private lateinit var tpmsFL: TextView
@@ -68,9 +71,15 @@ class HealthTPMSFragment : Fragment() {
             } else {
                 color.lowercase().startsWith("l2_")
             }
+            modelAsset = when {
+                it.containsKey(ARG_MODEL_ASSET) -> it.getString(ARG_MODEL_ASSET)
+                isZe1 -> Vehicle3DModel.ZE1.assetPath
+                color.lowercase().startsWith("l_") -> Vehicle3DModel.ZE0.assetPath
+                else -> null
+            }
         }
         carColorState.value = color
-        isZe1State.value = isZe1
+        modelAssetState.value = modelAsset
     }
 
     override fun onCreateView(
@@ -95,8 +104,14 @@ class HealthTPMSFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         carOverlayCompose.setContent {
-            if (isZe1State.value) {
-                Leaf3DTopDownCarView(carColor = carColorState.value)
+            val activeModel = modelAssetState.value
+            if (activeModel != null) {
+                key(activeModel) {
+                    Leaf3DTopDownCarView(
+                        carColor = carColorState.value,
+                        modelAssetPath = activeModel
+                    )
+                }
             }
         }
         updateUIState()
@@ -122,8 +137,8 @@ class HealthTPMSFragment : Fragment() {
 
         tpmsLight.visibility = if (healthInfo?.tpmsLight == true) View.VISIBLE else View.INVISIBLE
         carColorState.value = color
-        isZe1State.value = isZe1
-        if (isZe1) {
+        modelAssetState.value = modelAsset
+        if (modelAsset != null) {
             carOverlayCompose.visibility = View.VISIBLE
             // Keep INVISIBLE (not GONE) so ConstraintLayout chains/anchors to carOverlay stay intact
             carOverlay.visibility = View.INVISIBLE
@@ -172,7 +187,9 @@ class HealthTPMSFragment : Fragment() {
                                 }?.let {
                                     healthInfo = it.car.vehHealth
                                     color = it.car.color?.value ?: ""
-                                    isZe1 = isZe1Vehicle(it.car)
+                                    val resolved = resolveVehicle3DModel(it.car)
+                                    isZe1 = resolved == Vehicle3DModel.ZE1
+                                    modelAsset = resolved.assetPath
                                     updateUIState()
                                 }
                             }
@@ -213,6 +230,7 @@ class HealthTPMSFragment : Fragment() {
         const val ARG_HEALTHINFO = "healthinfo"
         const val ARG_COLOR = "color"
         const val ARG_IS_ZE1 = "is_ze1"
+        const val ARG_MODEL_ASSET = "model_asset"
 
         private val pressureFormatter =
             DecimalFormat("0.##", DecimalFormatSymbols.getInstance())
@@ -221,7 +239,8 @@ class HealthTPMSFragment : Fragment() {
         fun newInstance(
             healthInfo: VehicleHealthInfo?,
             color: String,
-            isZe1: Boolean = color.lowercase().startsWith("l2_")
+            isZe1: Boolean = color.lowercase().startsWith("l2_"),
+            modelAsset: String? = if (isZe1) Vehicle3DModel.ZE1.assetPath else if (color.lowercase().startsWith("l_")) Vehicle3DModel.ZE0.assetPath else null
         ) =
             HealthTPMSFragment().apply {
                 arguments = Bundle().apply {
@@ -230,6 +249,7 @@ class HealthTPMSFragment : Fragment() {
                     }
                     putString(ARG_COLOR, color)
                     putBoolean(ARG_IS_ZE1, isZe1)
+                    putString(ARG_MODEL_ASSET, modelAsset)
                 }
             }
     }

@@ -2,6 +2,7 @@ package com.developerfromjokela.opencarwings.ui.main
 
 import com.developerfromjokela.opencarwings.ui.elements.Leaf3DCarView
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -55,6 +56,7 @@ import com.developerfromjokela.opencarwings.ui.main.evinfo.EVInfoFragment.Compan
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_COLOR
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_HEALTHINFO
 import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_IS_ZE1
+import com.developerfromjokela.opencarwings.ui.main.health.HealthFragment.Companion.ARG_MODEL_ASSET
 import com.developerfromjokela.opencarwings.ui.main.location.LocationFragment.Companion.ARG_LOCATIONINFO
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsFragment.Companion.ARG_NOTIFICATIONS
 import com.developerfromjokela.opencarwings.ui.main.notifications.NotificationsListWrapper
@@ -152,26 +154,29 @@ class MainFragment : Fragment() {
         binding.carComposeView.setContent {
             val uiState by viewModel.uiState.observeAsState()
             val state = uiState ?: return@setContent
-            val isZE1 = state.car?.let { isZe1Vehicle(it) } == true
-            if (isZE1) {
-                val socPercent = (state.car.evInfo.socDisplay ?: state.car.evInfo.soc)?.toFloat()
-                    ?: ((state.activeSegments / 12f) * 100f)
-                val isChargeTimerActive = state.car.timerCommands.any {
-                    it.enabled == true && it.commandType == 2
+            val modelAsset = state.car?.let { resolveVehicle3DModel(it).assetPath }
+            if (modelAsset != null) {
+                key(modelAsset) {
+                    val socPercent = (state.car.evInfo.socDisplay ?: state.car.evInfo.soc)?.toFloat()
+                        ?: ((state.activeSegments / 12f) * 100f)
+                    val isChargeTimerActive = state.car.timerCommands.any {
+                        it.enabled == true && it.commandType == 2
+                    }
+                    Leaf3DCarView(
+                        carColor = state.car.color?.value,
+                        modelAssetPath = modelAsset,
+                        isPluggedIn = state.isPluggedIn,
+                        isCharging = state.isCharging,
+                        isQuickCharging = state.isQuickCharging,
+                        isChargingInterrupted = state.isChargingInterrupted,
+                        isMoving = state.carGear != 0,
+                        isReverse = state.carGear == 2,
+                        isHeadlightsOn = state.isRunning,
+                        batterySocPercent = socPercent,
+                        isClimateOn = state.isAcOn && !state.isRunning,
+                        isChargeTimerActive = isChargeTimerActive
+                    )
                 }
-                Leaf3DCarView(
-                    carColor = state.car.color?.value,
-                    isPluggedIn = state.isPluggedIn,
-                    isCharging = state.isCharging,
-                    isQuickCharging = state.isQuickCharging,
-                    isChargingInterrupted = state.isChargingInterrupted,
-                    isMoving = state.carGear != 0,
-                    isReverse = state.carGear == 2,
-                    isHeadlightsOn = state.isRunning,
-                    batterySocPercent = socPercent,
-                    isClimateOn = state.isAcOn && !state.isRunning,
-                    isChargeTimerActive = isChargeTimerActive
-                )
             }
         }
 
@@ -252,9 +257,11 @@ class MainFragment : Fragment() {
                 if (item.id == 6) {
                     findNavController().navigate(R.id.action_mainFragment_to_HealthFragment, Bundle().apply {
                         val currentCar = viewModel.uiState.value?.car
+                        val model3d = currentCar?.let { resolveVehicle3DModel(it) } ?: Vehicle3DModel.NONE
                         putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(currentCar?.vehHealth))
                         putString(ARG_COLOR, currentCar?.color?.value)
-                        putBoolean(ARG_IS_ZE1, currentCar?.let { isZe1Vehicle(it) } == true)
+                        putBoolean(ARG_IS_ZE1, model3d == Vehicle3DModel.ZE1)
+                        putString(ARG_MODEL_ASSET, model3d.assetPath)
                     })
                 }
             }
@@ -360,10 +367,10 @@ class MainFragment : Fragment() {
             binding.carStatus.text = state.carStatus
             var layers = emptyList<Drawable>()
 
-            val isZE1 = state.car?.let { isZe1Vehicle(it) } == true
-            applyCarRenderFrameLayout(isZE1)
+            val use3D = state.car?.let { resolveVehicle3DModel(it).assetPath } != null
+            applyCarRenderFrameLayout(use3D)
 
-            if (!isZE1) {
+            if (!use3D) {
 
                 state.carImageResId?.let {
                     ContextCompat.getDrawable(requireContext(), it)?.let {

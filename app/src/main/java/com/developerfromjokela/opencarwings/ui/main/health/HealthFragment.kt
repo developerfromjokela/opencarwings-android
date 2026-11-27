@@ -12,9 +12,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.developerfromjokela.opencarwings.OpenCARWINGS
 import com.developerfromjokela.opencarwings.R
+import com.developerfromjokela.opencarwings.ui.main.Vehicle3DModel
 import com.developerfromjokela.opencarwings.ui.main.health.tabs.dtc.HealthDTCFragment
 import com.developerfromjokela.opencarwings.ui.main.health.tabs.tpms.HealthTPMSFragment
-import com.developerfromjokela.opencarwings.ui.main.isZe1Vehicle
+import com.developerfromjokela.opencarwings.ui.main.resolveVehicle3DModel
 import com.developerfromjokela.opencarwings.websocket.WSClient
 import com.developerfromjokela.opencarwings.websocket.WSClientEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -33,6 +34,7 @@ class HealthFragment : Fragment() {
 
     private var color = ""
     private var isZe1 = false
+    private var modelAsset: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +49,12 @@ class HealthFragment : Fragment() {
             } else {
                 color.lowercase().startsWith("l2_")
             }
+            modelAsset = when {
+                it.containsKey(ARG_MODEL_ASSET) -> it.getString(ARG_MODEL_ASSET)
+                isZe1 -> Vehicle3DModel.ZE1.assetPath
+                color.lowercase().startsWith("l_") -> Vehicle3DModel.ZE0.assetPath
+                else -> null
+            }
         }
     }
 
@@ -58,7 +66,7 @@ class HealthFragment : Fragment() {
 
         healthNavigationView = view.findViewById(R.id.healthNavigation)
         healthNavigationView.setOnItemSelectedListener(selectedListener)
-        commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1))
+        commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1, modelAsset))
         return view
     }
 
@@ -69,7 +77,7 @@ class HealthFragment : Fragment() {
                     commitNewFragment(HealthDTCFragment.newInstance(healthInfo))
                 }
                 R.id.health_tpms -> {
-                    commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1))
+                    commitNewFragment(HealthTPMSFragment.newInstance(healthInfo, color, isZe1, modelAsset))
                 }
             }
             return@OnItemSelectedListener true
@@ -99,7 +107,9 @@ class HealthFragment : Fragment() {
                                 }?.let {
                                     healthInfo = it.car.vehHealth
                                     color = it.car.color?.value ?: ""
-                                    isZe1 = isZe1Vehicle(it.car)
+                                    val resolved = resolveVehicle3DModel(it.car)
+                                    isZe1 = resolved == Vehicle3DModel.ZE1
+                                    modelAsset = resolved.assetPath
                                 }
                             }
                         }
@@ -139,14 +149,21 @@ class HealthFragment : Fragment() {
         const val ARG_HEALTHINFO = "healthinfo"
         const val ARG_COLOR = "color"
         const val ARG_IS_ZE1 = "is_ze1"
+        const val ARG_MODEL_ASSET = "model_asset"
 
         @JvmStatic
-        fun newInstance(evInfo: VehicleHealthInfo, color: String, isZe1: Boolean = color.lowercase().startsWith("l2_")) =
+        fun newInstance(
+            evInfo: VehicleHealthInfo,
+            color: String,
+            isZe1: Boolean = color.lowercase().startsWith("l2_"),
+            modelAsset: String? = if (isZe1) Vehicle3DModel.ZE1.assetPath else if (color.lowercase().startsWith("l_")) Vehicle3DModel.ZE0.assetPath else null
+        ) =
             HealthFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_HEALTHINFO, WSClient.moshi.adapter(VehicleHealthInfo::class.java).toJson(evInfo))
                     putString(ARG_COLOR, color)
                     putBoolean(ARG_IS_ZE1, isZe1)
+                    putString(ARG_MODEL_ASSET, modelAsset)
                 }
             }
     }
