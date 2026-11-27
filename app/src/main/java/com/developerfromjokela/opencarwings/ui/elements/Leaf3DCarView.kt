@@ -442,32 +442,32 @@ fun Leaf3DCarView(
         }
         currentRig.taillightLedMats.forEach {
             if (lightsActive) {
-                it.setBaseColorRgba(floatArrayOf(1.0f, 0.45f, 0.04f, 1.0f))
-                it.setEmissiveHdr(1.0f, 0.36f, 0.02f, 24.0f)
+                it.setBaseColorRgba(floatArrayOf(1.0f, 0.06f, 0.015f, 1.0f))
+                it.setEmissiveHdr(1.0f, 0.055f, 0.008f, 18.0f)
             } else {
-                it.setBaseColorRgba(floatArrayOf(0.28f, 0.02f, 0.02f, 1.0f))
+                it.setBaseColorRgba(floatArrayOf(0.58f, 0.024f, 0.028f, 1.0f))
                 it.setEmissiveHdr(0f, 0f, 0f, 1.0f)
             }
         }
         currentRig.taillightGlowMats.forEach {
             if (lightsActive) {
-                it.setBaseColorRgba(floatArrayOf(0.95f, 0.16f, 0.02f, 0.28f))
-                it.setEmissiveHdr(1.0f, 0.16f, 0.01f, 3.8f)
+                it.setBaseColorRgba(floatArrayOf(0.95f, 0.035f, 0.015f, 0.30f))
+                it.setEmissiveHdr(1.0f, 0.032f, 0.005f, 4.8f)
             } else {
-                it.setBaseColorRgba(floatArrayOf(0.50f, 0.02f, 0.025f, 0.40f))
+                it.setBaseColorRgba(floatArrayOf(0.62f, 0.022f, 0.028f, 0.36f))
                 it.setEmissiveHdr(0f, 0f, 0f, 1.0f)
             }
         }
         currentRig.taillightRedLensMats.forEach {
             if (lightsActive) {
-                it.setBaseColorRgba(floatArrayOf(0.68f, 0.020f, 0.015f, 0.26f))
+                it.setBaseColorRgba(floatArrayOf(0.76f, 0.014f, 0.014f, 0.24f))
             } else {
-                it.setBaseColorRgba(floatArrayOf(0.55f, 0.015f, 0.015f, 0.46f))
+                it.setBaseColorRgba(floatArrayOf(0.65f, 0.014f, 0.018f, 0.44f))
             }
             it.setEmissiveHdr(0f, 0f, 0f, 1.0f)
         }
         currentRig.taillightGlassMats.forEach {
-            it.setBaseColorRgba(floatArrayOf(0.85f, 0.90f, 0.96f, 0.04f))
+            it.setBaseColorRgba(floatArrayOf(0.92f, 0.95f, 0.98f, 0.05f))
             it.setEmissiveHdr(0f, 0f, 0f, 1.0f)
         }
 
@@ -687,7 +687,7 @@ fun Leaf3DCarView(
                     intensity = if (lampLightsActive) 12_000f else 0f,
                     position = Position(x = -0.78f, y = 1.02f, z = -1.96f),
                     direction = Direction(x = -0.12f, y = -0.62f, z = -0.77f),
-                    color = Color(1.0f, 0.14f, 0.01f, 1.0f),
+                    color = Color(1.0f, 0.045f, 0.008f, 1.0f),
                     apply = {
                         falloff(0.38f)
                         spotLightCone(0.40f, 1.05f)
@@ -698,7 +698,7 @@ fun Leaf3DCarView(
                     intensity = if (lampLightsActive) 12_000f else 0f,
                     position = Position(x = 0.78f, y = 1.02f, z = -1.96f),
                     direction = Direction(x = 0.12f, y = -0.62f, z = -0.77f),
-                    color = Color(1.0f, 0.14f, 0.01f, 1.0f),
+                    color = Color(1.0f, 0.045f, 0.008f, 1.0f),
                     apply = {
                         falloff(0.38f)
                         spotLightCone(0.40f, 1.05f)
